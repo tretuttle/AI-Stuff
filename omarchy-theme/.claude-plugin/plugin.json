@@ -1,0 +1,12 @@
+{
+  "name": "omarchy-theme",
+  "version": "1.0.0",
+  "description": "Create Omarchy themes from wallpaper images with automated palette extraction",
+  "author": {
+    "name": "Trent Tuttle"
+  },
+  "homepage": "https://github.com/tretuttle/omarchy-theme#readme",
+  "repository": "https://github.com/tretuttle/omarchy-theme",
+  "license": "MIT",
+  "keywords": ["omarchy", "theme", "wallpaper", "palette", "rice"]
+}

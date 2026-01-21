@@ -1,0 +1,13 @@
+{
+  "name": "ai-stuff",
+  "owner": {
+    "name": "Trent Tuttle"
+  },
+  "plugins": [
+    {
+      "name": "omarchy-theme",
+      "source": "./omarchy-theme",
+      "description": "Create Omarchy desktop themes from wallpaper images"
+    }
+  ]
+}
