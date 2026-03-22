@@ -8,6 +8,16 @@
       "name": "omarchy-theme",
       "source": "./omarchy-theme",
       "description": "Create Omarchy desktop themes from wallpaper images"
+    },
+    {
+      "name": "browser-capture",
+      "source": "./plugins/browser-capture",
+      "description": "Playwright+CDP browser resource capture engine. Archives all resources the browser receives during navigation into a domain-organized directory with full metadata.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Trent"
+      },
+      "keywords": ["browser", "capture", "playwright", "cdp", "resources", "archive", "network", "devtools", "reverse-engineering"]
     }
   ]
 }

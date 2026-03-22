@@ -14,6 +14,7 @@ Then install individual plugins:
 
 ```
 /plugin install omarchy-theme@ai-stuff
+/plugin install browser-capture@ai-stuff
 ```
 
 ## Available Plugins
@@ -29,6 +30,19 @@ Create Omarchy desktop themes from wallpaper images with automated palette extra
 - Workshop-based workflow at `~/omarchy-theme-workshop/`
 
 [View plugin details](./omarchy-theme/README.md)
+
+### browser-capture
+
+Complete browser resource capture using Playwright + Chrome DevTools Protocol. Archives every resource the browser receives during navigation into a domain-organized directory with full metadata.
+
+**Features:**
+- Capture all network traffic (XHR, fetch, scripts, CSS, fonts, images, API responses)
+- Cached/static resources from the browser's resource tree
+- Full request/response metadata (headers, status codes, timing, cache status)
+- Domain-organized directory structure with actual files
+- Post-capture analysis agent for filtering and searching
+
+[View plugin details](./plugins/browser-capture/README.md)
 
 ## License
 

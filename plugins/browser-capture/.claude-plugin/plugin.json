@@ -1,0 +1,15 @@
+{
+  "name": "browser-capture",
+  "version": "1.0.0",
+  "description": "Playwright+CDP browser resource capture engine. Archives all resources the browser receives during navigation into a domain-organized directory with full metadata.",
+  "author": {
+    "name": "Trent",
+    "url": "https://trents.tech"
+  },
+  "repository": "https://github.com/tretuttle/AI-Stuff",
+  "license": "MIT",
+  "keywords": [
+    "browser", "capture", "playwright", "cdp", "resources",
+    "archive", "network", "devtools", "reverse-engineering"
+  ]
+}
