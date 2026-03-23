@@ -1,0 +1,9 @@
+{
+  "name": "browser-capture-deps",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "playwright": "^1.58.2",
+    "js-beautify": "^1.15.4"
+  }
+}
