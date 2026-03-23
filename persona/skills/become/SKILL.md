@@ -37,17 +37,17 @@ When in become mode, resolve the persona name to an agent file:
 
 1. **Clean the input:** Trim whitespace. Remove surrounding quotes (single or double).
 
-2. **Try exact match:** Use Glob to check if `agents/{input}.md` exists in the plugin directory. If found, use it.
+2. **Try exact match:** Use Glob to check if `${CLAUDE_SKILL_DIR}/../review/../../agents/{input}.md` exists. If found, use it. (This resolves to the plugin's agents directory.)
 
-3. **Try display name lookup:** Read the Persona Roster table in `skills/review/reference.md`. Find a row where the Display Name matches the input (case-insensitive comparison). Use the corresponding Agent Name from that row to locate `agents/{agent-name}.md`.
+3. **Try display name lookup:** Read the Persona Roster table in `${CLAUDE_SKILL_DIR}/../review/reference.md`. Find a row where the Display Name matches the input (case-insensitive comparison). Use the corresponding Agent Name from that row to locate the agent file.
 
-4. **Try kebab-case conversion:** Convert the input to kebab-case (lowercase, replace spaces with hyphens, remove non-alphanumeric characters except hyphens) and check if `agents/{kebab}.md` exists.
+4. **Try kebab-case conversion:** Convert the input to kebab-case (lowercase, replace spaces with hyphens, remove non-alphanumeric characters except hyphens) and check if the agent file exists at the same plugin agents path.
 
 5. **No match found:** If none of the above resolve to a valid file, print:
    ```
    Persona '{input}' not found. Available personas:
    ```
-   Then use Glob to find all `agents/*.md` files in the plugin directory. Exclude `agents/template.md`. For each file, extract the agent name (filename without `.md`). List the agent names for the user. Stop processing.
+   Then use Glob to find all `${CLAUDE_SKILL_DIR}/../../agents/*.md` files. Exclude `template.md`. For each file, extract the agent name (filename without `.md`). List the agent names for the user. Stop processing.
 
 ## Persona Injection
 
