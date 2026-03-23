@@ -1,0 +1,35 @@
+{
+  "persona": "dhh",
+  "displayName": "DHH",
+  "gilfoyleMode": false,
+  "target": "src/auth.ts",
+  "findings": [
+    {
+      "severity": "critical",
+      "confidence": 80,
+      "file": "src/auth.ts",
+      "line": 42,
+      "issue": "Blocking bcrypt.hashSync() will tank throughput under load",
+      "recommendation": "Use the async bcrypt API",
+      "reasoning": "You're holding up the entire process for a CPU-bound operation. This is the kind of thing that kills production apps at 3am."
+    },
+    {
+      "severity": "suggestion",
+      "confidence": 45,
+      "file": "src/auth.ts",
+      "line": 15,
+      "issue": "process.env reads on every request are fine",
+      "recommendation": "Don't prematurely optimize -- process.env is fast enough",
+      "reasoning": "Premature optimization is the root of all evil. process.env reads are negligible."
+    },
+    {
+      "severity": "warning",
+      "confidence": 65,
+      "file": "src/auth.ts",
+      "issue": "No rate limiting on authentication endpoint",
+      "recommendation": "Add rate limiting middleware before auth routes",
+      "reasoning": "Someone will brute-force this. It's not if, it's when."
+    }
+  ],
+  "summary": "1 critical, 0 warnings, 2 suggestions"
+}

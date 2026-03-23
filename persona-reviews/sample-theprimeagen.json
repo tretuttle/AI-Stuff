@@ -1,0 +1,35 @@
+{
+  "persona": "theprimeagen",
+  "displayName": "ThePrimeagen",
+  "gilfoyleMode": false,
+  "target": "src/auth.ts",
+  "findings": [
+    {
+      "severity": "critical",
+      "confidence": 85,
+      "file": "src/auth.ts",
+      "line": 42,
+      "issue": "Synchronous bcrypt call blocks the event loop",
+      "recommendation": "Use bcrypt.hash() async variant or switch to Argon2",
+      "reasoning": "This is a skill issue. You're blocking the entire event loop for password hashing. Every request queues behind this."
+    },
+    {
+      "severity": "warning",
+      "confidence": 70,
+      "file": "src/auth.ts",
+      "line": 15,
+      "issue": "JWT secret loaded from process.env on every call",
+      "recommendation": "Cache the secret at module level",
+      "reasoning": "You're hitting process.env on every token verification. Read it once, cache it."
+    },
+    {
+      "severity": "suggestion",
+      "confidence": 25,
+      "file": "src/auth.ts",
+      "issue": "Consider adding request logging",
+      "recommendation": "Add structured logging for auth requests",
+      "reasoning": "Not my usual concern but having logs helps debugging."
+    }
+  ],
+  "summary": "1 critical, 1 warning, 1 suggestion"
+}

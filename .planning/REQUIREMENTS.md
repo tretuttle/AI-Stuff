@@ -1,0 +1,126 @@
+# Requirements: Persona
+
+**Defined:** 2026-03-22
+**Core Value:** Diverse expert perspectives on code that a single reviewer would miss
+
+## v1 Requirements
+
+### Persona Agents
+
+- [x] **PERS-01**: Plugin includes at least 3 distinct persona agents with unique names, philosophies, and review lenses
+- [x] **PERS-02**: Each persona agent has a structured output contract (severity, file, explanation, recommendation)
+- [x] **PERS-03**: Each persona reviews through a fundamentally different lens (e.g., security-adversarial, architecture-structural, readability-empathetic)
+- [x] **PERS-04**: Persona agents are read-only — they use Glob, Grep, Read, and Bash (non-destructive) but cannot edit files
+- [x] **PERS-05**: Persona agents are aware of CLAUDE.md project conventions
+
+### Orchestration
+
+- [x] **ORCH-01**: User can invoke a multi-persona review via `/persona:orchestrate` skill
+- [x] **ORCH-02**: Orchestration dispatches all persona agents in parallel from the main agent context
+- [x] **ORCH-03**: User can target specific files or staged changes for review via skill arguments
+- [x] **ORCH-04**: Orchestration collects structured output from all persona agents via SubagentStop hook or agent return
+- [x] **ORCH-05**: Orchestration skill does NOT use `context: fork` (subagents cannot spawn subagents)
+
+### Synthesis
+
+- [x] **SYNT-01**: User can parse and synthesize persona feedback into a unified review via `/persona:parse-output` skill
+- [x] **SYNT-02**: Synthesis deduplicates findings that multiple personas flagged
+- [x] **SYNT-03**: Synthesis attributes each finding to the originating persona(s)
+- [x] **SYNT-04**: Synthesis ranks findings by severity (critical / warning / suggestion)
+- [x] **SYNT-05**: Synthesis surfaces cross-persona disagreements explicitly rather than hiding them
+
+### Confidence Scoring
+
+- [x] **CONF-01**: Each persona assigns a confidence score (0-100) to each finding
+- [x] **CONF-02**: Synthesis can filter findings below a configurable confidence threshold
+
+### Progress Tracking
+
+- [x] **PROG-01**: Plugin provides hooks (SubagentStart/Stop) that track which personas are running and complete
+- [x] **PROG-02**: Hook scripts work on Windows (inline bash commands, no script file references)
+
+### Memory
+
+- [x] **MEMO-01**: Persona agents use `memory: project` to accumulate project-specific review insights
+- [x] **MEMO-02**: Persona memory improves feedback relevance across review sessions
+
+### Plugin Packaging
+
+- [x] **PLUG-01**: Plugin has a valid `plugin.json` manifest with name, version, description, author
+- [x] **PLUG-02**: Plugin is installable via `/plugin install persona@ai-stuff` from the tretuttle/AI-Stuff marketplace
+- [x] **PLUG-03**: Plugin includes a template persona `.md` file for users who want to create custom personas
+- [x] **PLUG-04**: Plugin README documents usage, persona descriptions, and the custom persona contract
+
+### Selective Invocation
+
+- [x] **SELC-01**: User can invoke specific personas by name via skill arguments (e.g., `/persona:orchestrate --only security,architect`)
+- [x] **SELC-02**: Default behavior runs all persona agents when no selection is specified
+
+## v2 Requirements
+
+### Review History
+
+- **HIST-01**: Plugin stores previous review results in persona memory
+- **HIST-02**: Synthesis can diff current findings against previous review ("3 issues resolved, 2 new")
+
+### Advanced Personas
+
+- **ADVP-01**: Plugin includes 10+ persona agents covering a wide range of expertise
+- **ADVP-02**: Personas can be assigned different model tiers (haiku for quick-scan, sonnet/opus for deep analysis)
+
+### Output Formats
+
+- **OUTF-01**: Synthesis can output in multiple formats (markdown, JSON, concise summary)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Custom persona creation UI/wizard | Users can drop `.md` files in `agents/` — that IS the UI |
+| Real-time streaming of persona feedback | Reviews complete then present results; progress hooks suffice |
+| GitHub PR comment integration | Official code-review plugin already does this |
+| Multi-LLM persona diversity | No external deps constraint; vary Claude model tiers instead |
+| CI/CD integration | Official plugin's territory; Persona is for developer-initiated reviews |
+| Per-line inline annotations | Fragile with code changes; report at file + function level instead |
+| Persona voting/consensus | Reduces nuanced opinions to popularity; surface all findings with attribution |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| PERS-01 | Phase 1 | Complete |
+| PERS-02 | Phase 1 | Complete |
+| PERS-03 | Phase 1 | Complete |
+| PERS-04 | Phase 1 | Complete |
+| PERS-05 | Phase 1 | Complete |
+| ORCH-01 | Phase 2 | Complete |
+| ORCH-02 | Phase 2 | Complete |
+| ORCH-03 | Phase 2 | Complete |
+| ORCH-04 | Phase 2 | Complete |
+| ORCH-05 | Phase 2 | Complete |
+| SYNT-01 | Phase 3 | Complete |
+| SYNT-02 | Phase 3 | Complete |
+| SYNT-03 | Phase 3 | Complete |
+| SYNT-04 | Phase 3 | Complete |
+| SYNT-05 | Phase 3 | Complete |
+| CONF-01 | Phase 3 | Complete |
+| CONF-02 | Phase 3 | Complete |
+| PROG-01 | Phase 4 | Complete |
+| PROG-02 | Phase 4 | Complete |
+| MEMO-01 | Phase 5 | Complete |
+| MEMO-02 | Phase 5 | Complete |
+| PLUG-01 | Phase 1 | Complete |
+| PLUG-02 | Phase 6 | Complete |
+| PLUG-03 | Phase 6 | Complete |
+| PLUG-04 | Phase 6 | Complete |
+| SELC-01 | Phase 6 | Complete |
+| SELC-02 | Phase 6 | Complete |
+
+**Coverage:**
+- v1 requirements: 27 total
+- Mapped to phases: 27
+- Unmapped: 0
+
+---
+*Requirements defined: 2026-03-22*
+*Last updated: 2026-03-22 after roadmap creation*

@@ -1,0 +1,14 @@
+{
+  "name": "ai-stuff",
+  "owner": {
+    "name": "Trent Tuttle"
+  },
+  "plugins": [
+    {
+      "name": "persona",
+      "source": ".",
+      "description": "Multi-persona code review orchestrator — get feedback from diverse expert perspectives",
+      "version": "1.0.0"
+    }
+  ]
+}
