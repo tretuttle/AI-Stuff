@@ -3,7 +3,9 @@
 
 [![Claude Code Plugin][claude-shield]][claude-url]
 [![License: MIT][license-shield]][license-url]
-[![GitHub Pull Request][pr-shield]][pr-url]
+[![GitHub Pull Requests][pr-shield]][pr-url]
+[![GitHub Issues][issues-shield]][issues-url]
+[![GitHub Stars][stars-shield]][stars-url]
 
 </div>
 
@@ -20,6 +22,12 @@
 <div align="center">
 
 # Persona
+
+<p>
+  <a href="https://github.com/tretuttle/AI-Stuff">
+    <img src="https://readme-typing-svg.demolab.com/?lines=ThePrimeagen+reviews+your+code;DHH+reviews+your+code;Rich+Harris+reviews+your+code;Dan+Abramov+reviews+your+code;All+of+them+review+your+code;In+parallel.&font=Fira+Code&center=true&width=440&height=45&duration=2500&pause=800&color=B794F4&vCenter=true" alt="Typing SVG">
+  </a>
+</p>
 
 **Multi-persona code review orchestrator for [Claude Code](https://claude.com/claude-code)**
 
@@ -798,3 +806,7 @@ Found a bug? Have a persona request? Want to improve an existing persona's voice
 [license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
 [pr-shield]: https://img.shields.io/github/issues-pr/tretuttle/AI-Stuff
 [pr-url]: https://github.com/tretuttle/AI-Stuff/pulls
+[issues-shield]: https://img.shields.io/github/issues/tretuttle/AI-Stuff
+[issues-url]: https://github.com/tretuttle/AI-Stuff/issues
+[stars-shield]: https://img.shields.io/github/stars/tretuttle/AI-Stuff?style=social
+[stars-url]: https://github.com/tretuttle/AI-Stuff/stargazers
