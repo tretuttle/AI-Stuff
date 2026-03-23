@@ -9,6 +9,14 @@ function resolveModules() {
   if (process.env.CLAUDE_PLUGIN_DATA) {
     candidates.push(path.join(process.env.CLAUDE_PLUGIN_DATA, 'node_modules'));
   }
+  // Check NODE_PATH if set (command/skill files may pass this)
+  if (process.env.NODE_PATH) {
+    for (const p of process.env.NODE_PATH.split(path.delimiter)) {
+      if (p && !candidates.includes(p)) {
+        candidates.push(p);
+      }
+    }
+  }
   // Sibling node_modules (for local dev)
   candidates.push(path.join(__dirname, '..', 'node_modules'));
   // Local node_modules
@@ -102,14 +110,20 @@ const pendingRequests = new Map(); // requestId -> resolve function
 function urlToFilePath(urlStr) {
   try {
     const u = new URL(urlStr);
-    let filePath = u.hostname + u.pathname;
+    let pathname = u.pathname;
     // Remove trailing slash
-    filePath = filePath.replace(/\/$/, '');
-    // If no extension, add .html
-    const ext = path.extname(filePath);
-    if (!ext || ext === '.') {
-      filePath += '.html';
+    pathname = pathname.replace(/\/$/, '');
+    // Default empty pathname to /index (root page)
+    if (!pathname) {
+      pathname = '/index';
     }
+    // Check extension on PATHNAME only (not hostname) to avoid
+    // TLDs like .tech/.app/.design being mistaken for file extensions
+    const ext = path.extname(pathname);
+    if (!ext || ext === '.') {
+      pathname += '.html';
+    }
+    let filePath = u.hostname + pathname;
     // Remove query string from path but keep it identifiable
     if (u.search) {
       const safeQuery = u.search.replace(/[?&=]/g, '_').substring(0, 80);
@@ -330,32 +344,37 @@ async function capturePage(cdpSession, page, url, pageMetadata, args) {
     };
     metadata.push(entry);
 
-    if (info.body != null) {
-      let content = info.body;
-      let isBase64 = info.base64Encoded;
+    try {
+      if (info.body != null) {
+        let content = info.body;
+        let isBase64 = info.base64Encoded;
 
-      // Beautify text content (gated by args.beautify)
-      if (!isBase64 && typeof content === 'string') {
-        if (args.beautify) {
-          content = beautify(content, info.mimeType, relPath);
-        }
+        // Beautify text content (gated by args.beautify)
+        if (!isBase64 && typeof content === 'string') {
+          if (args.beautify) {
+            content = beautify(content, info.mimeType, relPath);
+          }
 
-        // Extract data URIs (gated by args.dataUris)
-        if (args.dataUris) {
-          const dataUris = extractDataUris(content, info.url);
-          if (dataUris.length > 0) {
-            const dataUriDir = path.join(path.dirname(relPath), '_DataURI');
-            for (const du of dataUris) {
-              writeResource(path.join(dataUriDir, du.fileName), du.base64Data, true);
+          // Extract data URIs (gated by args.dataUris)
+          if (args.dataUris) {
+            const dataUris = extractDataUris(content, info.url);
+            if (dataUris.length > 0) {
+              const dataUriDir = path.join(path.dirname(relPath), '_DataURI');
+              for (const du of dataUris) {
+                writeResource(path.join(dataUriDir, du.fileName), du.base64Data, true);
+              }
             }
           }
         }
-      }
 
-      writeResource(relPath, content, isBase64);
-    } else if (args.noContent) {
-      // Write marker file (gated by args.noContent)
-      writeResource(relPath, `No Content: ${info.url}\nReason: ${info.bodyError || 'unknown'}`);
+        writeResource(relPath, content, isBase64);
+      } else if (args.noContent) {
+        // Write marker file (gated by args.noContent)
+        writeResource(relPath, `No Content: ${info.url}\nReason: ${info.bodyError || 'unknown'}`);
+      }
+    } catch (writeErr) {
+      process.stderr.write('  Write error for ' + relPath + ': ' + writeErr.message + '\n');
+      entry.writeError = writeErr.message;
     }
   }
 
