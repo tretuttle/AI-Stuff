@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SubagentStart": [
+      {
+        "matcher": "theprimeagen|dhh|chris-coyier|dan-abramov|evan-you|kent-c-dodds|lee-robinson|matt-mullenweg|matt-pocock|rich-harris|scott-tolinski|tanner-linsley|theo-browne|wes-bos",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.agent_type' | xargs -I{} echo \"[persona] Starting review: {}\" >&2"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "theprimeagen|dhh|chris-coyier|dan-abramov|evan-you|kent-c-dodds|lee-robinson|matt-mullenweg|matt-pocock|rich-harris|scott-tolinski|tanner-linsley|theo-browne|wes-bos",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.agent_type' | xargs -I{} echo \"[persona] Finished review: {}\" >&2"
+          }
+        ]
+      }
+    ]
+  }
+}
