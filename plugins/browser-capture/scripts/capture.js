@@ -41,6 +41,7 @@ if (!resolveModules()) {
 }
 
 // NOW safe to require external deps
+const crypto = require('crypto');
 const { chromium } = require('playwright');
 const { js: beautifyJs, css: beautifyCss, html: beautifyHtml } = require('js-beautify');
 
@@ -109,6 +110,16 @@ const pendingRequests = new Map(); // requestId -> resolve function
 
 function urlToFilePath(urlStr) {
   try {
+    // Handle data: URIs — hash the content to produce a short, safe filename
+    if (urlStr.startsWith('data:')) {
+      const hash = crypto.createHash('sha1').update(urlStr).digest('hex').substring(0, 12);
+      // Extract MIME type: data:image/svg+xml;... or data:image/png;base64,...
+      const mimeMatch = urlStr.match(/^data:([^;,]+)/);
+      const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      const ext = mime.split('/')[1]?.split('+')[0] || 'bin';
+      return path.join('_data-uris', hash + '.' + ext);
+    }
+
     const u = new URL(urlStr);
     let pathname = u.pathname;
     // Remove trailing slash
