@@ -68,7 +68,11 @@ Before dispatching, dynamically discover available persona agents:
 1. Use Glob to find all agent files at `${CLAUDE_SKILL_DIR}/../../agents/*.md` (this resolves to the plugin's agents directory regardless of the user's working directory).
 2. Exclude `template.md` from the list (it is a scaffold, not a real persona).
 3. For each remaining file, the **agent name** is the filename without the `.md` extension (e.g., `theprimeagen.md` -> `theprimeagen`).
-4. To get the **display name** for user-facing output, read each agent file's YAML frontmatter `description` field. For the display name itself, convert the kebab-case agent name to title case (e.g., `theprimeagen` -> `ThePrimeagen`, `chris-coyier` -> `Chris Coyier`, `dhh` -> `DHH`). Alternatively, use the Display Name column in the Persona Roster table in `reference.md` for built-in personas, falling back to title-case conversion for custom personas not listed there.
+4. To get the **display name** for user-facing output, resolve it in this order:
+   - If the agent appears in the Persona Roster table in `reference.md`, use the **Display Name** column.
+   - Otherwise, if the agent markdown contains a `# Claude Persona: ...` heading, use the heading text after the colon as the display name.
+   - Otherwise, derive it from the agent name by converting kebab-case to title case (e.g., `theprimeagen` -> `ThePrimeagen`, `chris-coyier` -> `Chris Coyier`, `dhh` -> `DHH`).
+   The YAML frontmatter `description` field is a summary/blurb, not the display name.
 5. Store the discovered list as the available persona set for this run.
 
 ### --only Name Resolution
