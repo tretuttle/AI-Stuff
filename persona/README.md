@@ -1,541 +1,494 @@
+<!-- PROJECT SHIELDS -->
+<div align="center">
+
+[![Claude Code Plugin][claude-shield]][claude-url]
+[![License: MIT][license-shield]][license-url]
+[![GitHub Pull Request][pr-shield]][pr-url]
+
+</div>
+
+<!-- SHARE -->
+<div align="center">
+
+[![Share on X](https://img.shields.io/badge/share-000000?logo=x&logoColor=white)](https://x.com/intent/tweet?text=Check%20out%20Persona%20%E2%80%94%20multi-persona%20code%20review%20for%20Claude%20Code.%20ThePrimeagen%2C%20DHH%2C%20Rich%20Harris%20and%20more%20review%20your%20code%20in%20parallel.&url=https%3A%2F%2Fgithub.com%2Ftretuttle%2FAI-Stuff)
+[![Share on Reddit](https://img.shields.io/badge/share-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/submit?title=Persona%20%E2%80%94%20multi-persona%20code%20review%20for%20Claude%20Code&url=https%3A%2F%2Fgithub.com%2Ftretuttle%2FAI-Stuff)
+[![Share on HN](https://img.shields.io/badge/share-F0652F?logo=ycombinator&logoColor=white)](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Ftretuttle%2FAI-Stuff&t=Persona%20%E2%80%94%20multi-persona%20code%20review%20for%20Claude%20Code)
+
+</div>
+
+<!-- TITLE & DESCRIPTION -->
+<div align="center">
+
 # Persona
 
-Multi-persona code review orchestrator for [Claude Code](https://claude.com/claude-code). Dispatches expert developer personas in parallel to review your code — each with their own philosophy, priorities, and blind spots — then synthesizes their feedback into a unified review with deduplication, confidence scoring, and disagreement surfacing.
+**Multi-persona code review orchestrator for [Claude Code](https://claude.com/claude-code)**
 
-One command. Many perspectives. Better code.
+Dispatches expert developer personas in parallel to review your code — each with their own philosophy, priorities, and blind spots — then synthesizes their feedback into a unified review with deduplication, confidence scoring, and disagreement surfacing.
 
-## Table of Contents
+*One command. Many perspectives. Better code.*
 
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Commands](#commands)
-  - [/persona:review](#personareview)
-  - [/persona:parse-output](#personaparse-output)
-  - [/persona:become](#personabecome)
-- [The Personas](#the-personas)
-  - [ThePrimeagen](#theprimeagen)
-  - [DHH](#dhh)
-  - [Chris Coyier](#chris-coyier)
-  - [Dan Abramov](#dan-abramov)
-  - [Evan You](#evan-you)
-  - [Kent C. Dodds](#kent-c-dodds)
-  - [Lee Robinson](#lee-robinson)
-  - [Matt Mullenweg](#matt-mullenweg)
-  - [Matt Pocock](#matt-pocock)
-  - [Rich Harris](#rich-harris)
-  - [Scott Tolinski](#scott-tolinski)
-  - [Tanner Linsley](#tanner-linsley)
-  - [Theo Browne](#theo-browne)
-  - [Wes Bos](#wes-bos)
-- [Synthesis Engine](#synthesis-engine)
-  - [Deduplication](#deduplication)
-  - [Confidence Scoring](#confidence-scoring)
-  - [Disagreement Detection](#disagreement-detection)
-  - [Threshold Filtering](#threshold-filtering)
-- [Gilfoyle Mode](#gilfoyle-mode)
-- [Output Format](#output-format)
-  - [Per-Persona JSON](#per-persona-json)
-  - [Synthesized Review](#synthesized-review)
-- [Custom Personas](#custom-personas)
-  - [Creating a Persona](#creating-a-persona)
-  - [Persona Anatomy](#persona-anatomy)
-  - [Required Sections](#required-sections)
-- [Architecture](#architecture)
-  - [How /persona:review Works](#how-personareview-works)
-  - [How /persona:become Works](#how-personabecome-works)
-  - [Plugin Structure](#plugin-structure)
-- [Project Stack Constraint](#project-stack-constraint)
-- [Memory](#memory)
-- [Progress Tracking](#progress-tracking)
-- [License](#license)
+</div>
 
 ---
 
-## Installation
+<!-- TABLE OF CONTENTS -->
+## Table of Contents
 
-Add the marketplace, then install:
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Demo](#demo)
+- [Usage](#usage)
+  - [/persona:review](#personareview)
+  - [/persona:parse-output](#personaparse-output)
+  - [/persona:become](#personabecome)
+- [In-Depth Features](#in-depth-features)
+  - [The Personas](#the-personas)
+  - [Synthesis Engine](#synthesis-engine)
+  - [Gilfoyle Mode](#gilfoyle-mode)
+  - [Output Format](#output-format)
+  - [Custom Personas](#custom-personas)
+  - [Project Stack Constraint](#project-stack-constraint)
+  - [Memory System](#memory-system)
+  - [Progress Tracking](#progress-tracking)
+  - [Architecture](#architecture)
+- [FAQ](#faq)
+- [Sponsors](#sponsors)
+- [Acknowledgments](#acknowledgments)
+- [Feedback](#feedback)
+- [Current Contributors](#current-contributors)
+
+---
+
+## Features
+
+- **Expert persona agents** — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more — each channeling that developer's actual philosophy and review style
+- **Parallel dispatch** — All selected personas review simultaneously as Claude Code subagents, not sequentially
+- **Synthesis engine** — Deduplicates findings across personas, boosts confidence when multiple agree, surfaces disagreements where experts differ
+- **Gilfoyle mode** — Maximum intensity reviews. No diplomacy. Roast the implementation, not the architecture.
+- **Interactive persona mode** — `/persona:become` lets you chat with Claude as any persona, with full tool access
+- **Dynamic discovery** — Drop a new `.md` file in `agents/` and it's automatically available. No config to edit.
+- **Confidence scoring** — Every finding carries a 0-100 confidence score. Filter noise with `--min-confidence`
+- **Structured output** — Per-persona JSON files + unified synthesis markdown. Machine-readable and human-readable.
+- **Project memory** — Personas accumulate project-specific insights across sessions. Feedback sharpens over time.
+- **Progress hooks** — SubagentStart/SubagentStop events report which personas are running and complete
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Claude Code](https://claude.com/claude-code) installed and running
+
+### Installation
+
+Add the marketplace and install:
 
 ```
 /plugin marketplace add tretuttle/AI-Stuff
 /plugin install persona@ai-stuff
 ```
 
-That's it. All personas and skills are immediately available.
+That's it. All personas and commands are immediately available.
+
+### First Review
+
+```bash
+# Review a file with all personas
+/persona:review src/auth.ts
+```
+
+You'll see a confirmation of which personas are running, progress messages as each finishes, and a synthesized review grouped by severity.
 
 ---
 
-## Quick Start
+## Demo
 
-```bash
-# Review a file — all personas weigh in
+### Review a specific file
+
+```
 /persona:review src/auth.ts
+```
 
-# Review staged changes (the default when no target is given)
-/persona:review
+```
+Personas: ThePrimeagen, DHH, Chris Coyier, Dan Abramov, Evan You, ...
+Target: src/auth.ts
+Gilfoyle: No
 
-# Just the people you want to hear from
-/persona:review src/api/ --only "ThePrimeagen,DHH"
+[persona] Starting review: theprimeagen
+[persona] Starting review: dhh
+[persona] Finished review: theprimeagen
+[persona] Starting review: chris-coyier
+[persona] Finished review: dhh
+...
 
-# Maximum intensity — no diplomacy, no mercy
-/persona:review src/utils/ --gilfoyle
+## Persona Review Synthesis
 
-# Channel a specific persona for an interactive session
+**14 personas reviewed `src/auth.ts`**
+**Summary: 2 critical, 4 warnings, 7 suggestions** (after deduplication)
+
+### Critical (2)
+
+#### 1. Synchronous bcrypt blocks event loop
+- **Confidence:** 85 (boosted — flagged by 2 personas)
+- **File:** src/auth.ts:42
+- **Flagged by:** ThePrimeagen (85), DHH (75)
+
+#### 2. No rate limiting on login endpoint
+- **Confidence:** 70
+- **File:** src/auth.ts:12
+- **Flagged by:** Kent C. Dodds (70)
+
+### Disagreements (1)
+
+#### 1. [src/auth.ts] JWT vs session-based auth
+- **ThePrimeagen** (warning, 70): "JWT is fine, just cache the secret"
+- **DHH** (suggestion, 65): "Sessions with httpOnly cookies. JWT is almost always wrong."
+```
+
+### Select specific personas with Gilfoyle mode
+
+```
+/persona:review src/api/ --only "ThePrimeagen,DHH" --gilfoyle
+```
+
+### Interactive persona mode
+
+```
 /persona:become theprimeagen
 
-# Go back to regular Claude
+> ThePrimeagen here. Show me the code. Let's see how fast this thing actually is.
+
+You: Look at src/utils/cache.ts — is this cache implementation good?
+
+> *reads file* Oh no. OH NO. You're using Map as a cache with no eviction
+> policy. This thing grows unbounded. Every request adds an entry and NOTHING
+> removes them. This is a memory leak wearing a trench coat. Use an LRU cache.
+> WeakMap if the keys are objects. Or just use Redis like a normal person.
+
 /persona:become --reset
+> Back to default Claude.
 ```
 
 ---
 
-## Commands
+## Usage
 
 ### /persona:review
 
-The main event. Dispatches persona agents in parallel to review code, then synthesizes their findings into a unified report.
+The main event. Dispatches persona agents in parallel to review code, then synthesizes their findings.
 
 ```
 /persona:review [target] [--only name1,name2] [--gilfoyle] [--min-confidence N]
 ```
 
-#### Arguments
-
-| Argument | Description |
-|----------|-------------|
-| `[target]` | File path, directory, or glob pattern to review. When omitted, reviews staged changes (`git diff --staged`). |
-
-#### Flags
-
-| Flag | Description |
-|------|-------------|
-| `--only name1,name2` | Run only the specified personas. Accepts agent names (`theprimeagen`, `dhh`) or display names (`ThePrimeagen`, `DHH`). Comma-separated, no spaces around commas. |
-| `--gilfoyle` | Activate Gilfoyle mode on all dispatched personas. Maximum intensity, zero diplomacy. See [Gilfoyle Mode](#gilfoyle-mode). |
-| `--min-confidence N` | Set the minimum confidence threshold for findings. Findings below this score are hidden (default: 30). Critical-severity findings are **never** filtered regardless of confidence. |
+| Argument / Flag | Description |
+|-----------------|-------------|
+| `[target]` | File path, directory, or glob pattern. Defaults to staged changes when omitted. |
+| `--only name1,name2` | Run only specified personas. Accepts agent names (`theprimeagen`) or display names (`ThePrimeagen`). |
+| `--gilfoyle` | Maximum intensity mode. All diplomacy dropped. See [Gilfoyle Mode](#gilfoyle-mode). |
+| `--min-confidence N` | Hide findings below this confidence score (default: 30). Critical findings are never hidden. |
 
 #### Examples
 
-```bash
-# Single file, all personas
-/persona:review src/auth.ts
-
-# Directory, specific personas
-/persona:review packages/convex/ --only "Matt Pocock,Theo Browne"
-
-# Staged changes (default target), all personas
-/persona:review
-
-# Two personas, maximum intensity, high confidence only
-/persona:review src/api/ --only theprimeagen,dhh --gilfoyle --min-confidence 60
-
-# Glob pattern
-/persona:review "src/**/*.test.ts" --only kent-c-dodds
-
-# See everything, including low-confidence findings
-/persona:review src/index.ts --min-confidence 0
-```
+| Command | What it does |
+|---------|-------------|
+| `/persona:review src/auth.ts` | Review a specific file with all personas |
+| `/persona:review` | Review staged changes with all personas |
+| `/persona:review --only "Rich Harris"` | Review staged changes with just Rich Harris |
+| `/persona:review packages/convex/ --only "Matt Pocock,Theo Browne"` | Review a directory with two specific personas |
+| `/persona:review src/api/ --only theprimeagen,dhh --gilfoyle` | Two personas, maximum intensity |
+| `/persona:review src/auth.ts --min-confidence 60` | Only high-confidence findings |
+| `/persona:review "src/**/*.test.ts" --only kent-c-dodds` | Glob pattern, testing expert |
+| `/persona:review --min-confidence 0` | Show everything including uncertain observations |
 
 #### What Happens
 
-1. **Pre-dispatch confirmation** — Shows which personas will run and what they'll review
-2. **Parallel dispatch** — All selected personas launch simultaneously as subagents
-3. **Independent review** — Each persona reads the code through their unique lens
-4. **JSON output** — Each persona writes structured findings to `persona-reviews/{name}.json`
-5. **Synthesis** — Findings are deduplicated, confidence-boosted, and ranked by severity
-6. **Unified report** — A single synthesized review is presented and saved to `persona-reviews/SYNTHESIS.md`
-
-The `persona-reviews/` directory is cleared before each run to prevent stale results from prior reviews.
+1. **Confirmation** — Shows which personas will run and what they'll review
+2. **Cleanup** — Clears `persona-reviews/` of prior results
+3. **Parallel dispatch** — All selected personas launch simultaneously as subagents
+4. **Independent review** — Each persona reads code through their unique lens
+5. **JSON output** — Each persona's findings written to `persona-reviews/{name}.json`
+6. **Synthesis** — Findings deduplicated, confidence-boosted, ranked by severity
+7. **Report** — Unified review presented in-context and saved to `persona-reviews/SYNTHESIS.md`
 
 ---
 
 ### /persona:parse-output
 
-Re-run synthesis on existing persona review JSON files without dispatching personas again. Useful when you want to adjust the confidence threshold or re-synthesize after manually editing JSON files.
+Re-run synthesis on existing persona review JSON files without dispatching personas again.
 
 ```
 /persona:parse-output [--min-confidence N]
 ```
 
-This reads all `persona-reviews/*.json` files and produces identical output to the synthesis step of `/persona:review`. The result is presented in-context and saved to `persona-reviews/SYNTHESIS.md`.
+Reads all `persona-reviews/*.json` files and produces the same synthesized output as `/persona:review`. Useful when you want to:
 
-#### Examples
+- Adjust the confidence threshold after a review
+- Re-synthesize after manually editing JSON files
+- Generate the synthesis report from saved review data
 
 ```bash
-# Re-synthesize with default settings
-/persona:parse-output
-
-# Re-synthesize showing only high-confidence findings
-/persona:parse-output --min-confidence 70
-
-# Show absolutely everything
-/persona:parse-output --min-confidence 0
+/persona:parse-output                    # Re-synthesize with defaults
+/persona:parse-output --min-confidence 70  # Only high-confidence
+/persona:parse-output --min-confidence 0   # Show everything
 ```
 
 ---
 
 ### /persona:become
 
-Make Claude adopt a persona's voice and philosophy for interactive conversation. Unlike `/persona:review` (where personas are read-only subagents), `/persona:become` gives you the persona's perspective with **full tool access** — they can read, write, edit, run commands, and do everything regular Claude can do.
+Make Claude adopt a persona's voice and philosophy for interactive conversation. Unlike `/persona:review` (where personas are read-only subagents), `/persona:become` gives you the persona's perspective with **full tool access** — read, write, edit, run commands, everything.
 
 ```
 /persona:become [persona-name]
 /persona:become --reset
 ```
 
-#### Arguments
-
 | Argument | Description |
 |----------|-------------|
 | `[persona-name]` | Agent name (`theprimeagen`) or display name (`ThePrimeagen`). When omitted, resets to default Claude. |
 | `--reset` | Explicitly return to default Claude behavior. |
 
-#### Examples
-
 ```bash
-# Channel ThePrimeagen for a performance-focused coding session
-/persona:become theprimeagen
-
-# Display names work too
-/persona:become "Rich Harris"
-
-# Return to default Claude
-/persona:become --reset
-
-# Also resets with no arguments
-/persona:become
+/persona:become theprimeagen       # Channel ThePrimeagen
+/persona:become "Rich Harris"      # Display names work too
+/persona:become --reset            # Return to default Claude
+/persona:become                    # Also resets
 ```
 
-#### What It Does
+**When to use it:**
 
-1. Reads the persona's agent `.md` file
-2. Extracts their voice, core beliefs, and review philosophy
-3. Applies it as a behavioral overlay on the main Claude agent
-4. You get that persona's perspective with full capabilities — not a sandboxed subagent
-
-#### When to Use It
-
-- **Pair programming** — "Write this component like Rich Harris would"
-- **Architecture discussion** — "What would DHH think about this microservices proposal?"
-- **Code review conversation** — "ThePrimeagen, look at this function and tell me what's slow"
-- **Learning** — "Explain this pattern the way Kent C. Dodds would teach it"
+| Use Case | Example |
+|----------|---------|
+| Pair programming | "Write this component like Rich Harris would" |
+| Architecture discussion | "What would DHH think about this microservices proposal?" |
+| Code review conversation | "ThePrimeagen, look at this function and tell me what's slow" |
+| Learning | "Explain this pattern the way Kent C. Dodds would teach it" |
+| Debugging | "Tanner Linsley, why is this React Query cache behaving weird?" |
 
 ---
 
-## The Personas
+## In-Depth Features
+
+### The Personas
 
 Each persona channels a real developer's actual philosophy, priorities, and communication style. They're not generic archetypes — they review code the way these people actually think about software.
 
-### ThePrimeagen
+#### ThePrimeagen
+**`theprimeagen`** — Performance-obsessed systems engineer, former Netflix senior engineer, mass Vim converter.
 
-**Agent name:** `theprimeagen`
+| | |
+|---|---|
+| **Notices first** | Bundle sizes, unnecessary allocations, abstraction layers hiding performance costs, sync operations that should be async, cold start times, framework overhead |
+| **Loves** | Rust, Go, Zig, Neovim, manual memory management, zero-cost abstractions |
+| **Says things like** | "blazingly fast", "skill issue", "cope", "BTW I use Neovim" |
+| **Ignores** | Naming conventions, documentation style, CSS aesthetics, accessibility nuances |
 
-Performance-obsessed systems engineer, former Netflix senior engineer, mass Vim converter. Hunts bloat, unnecessary abstractions, and code that disrespects the machine.
+#### DHH
+**`dhh`** — Creator of Ruby on Rails, CTO of 37signals, Le Mans race car driver. The most unapologetically opinionated person in web development.
 
-**Notices first:** Bundle sizes, unnecessary allocations, abstraction layers hiding performance costs, synchronous operations that should be async, cold start times, framework overhead.
+| | |
+|---|---|
+| **Notices first** | Over-engineering, microservice mania, unnecessary complexity, client-side rendering where HTML would suffice, dependency bloat |
+| **Loves** | Ruby on Rails, Hotwire, Turbo, Stimulus, server-rendered HTML, monoliths, shipping products |
+| **Says things like** | "The Majestic Monolith", "conceptual compression", "convention over configuration" |
+| **Ignores** | Type system sophistication, functional programming patterns, build tool configuration |
 
-**Says things like:** "blazingly fast", "skill issue", "cope". Will roast your 200MB node_modules. Will ask why your Hello World needs a framework. Uses ALL CAPS for emphasis.
+#### Chris Coyier
+**`chris-coyier`** — Founder of CSS-Tricks, co-founder of CodePen. Web platform advocate.
 
-**Loves:** Rust, Go, Zig, Neovim, manual memory management, zero-cost abstractions. Respects engineers who understand what their code actually does at a systems level.
+| | |
+|---|---|
+| **Notices first** | CSS fighting the platform, div-soup HTML, missing semantic elements, JS doing what CSS can do natively |
+| **Loves** | CSS (deeply), semantic HTML, web standards, progressive enhancement, container queries, custom properties |
+| **Says things like** | "The platform can do that", "Have you tried CSS Grid?" |
+| **Ignores** | Backend architecture, database optimization, deployment pipelines |
 
-**Ignores:** Naming conventions, documentation style, CSS aesthetics, accessibility nuances. "That's important, but not my department."
+#### Dan Abramov
+**`dan-abramov`** — React core team alum, creator of Redux and Create React App.
+
+| | |
+|---|---|
+| **Notices first** | Components doing too much, prop drilling vs. composition, effect timing issues, state that should derive from other state |
+| **Loves** | Composition over inheritance, declarative patterns, understanding *why* before *how* |
+| **Says things like** | "Let me think about this differently", "What's the mental model here?" |
+| **Ignores** | CSS methodology debates, build tool preferences, server infrastructure |
+
+#### Evan You
+**`evan-you`** — Creator of Vue.js and Vite. Framework designer focused on developer experience.
+
+| | |
+|---|---|
+| **Notices first** | API ergonomics, unnecessary boilerplate, reactivity anti-patterns, DX friction, tooling overhead |
+| **Loves** | Reactivity done right, progressive enhancement, intuitive defaults, compiler-assisted optimization |
+| **Says things like** | "The API should guide you toward the right thing", "Progressive disclosure of complexity" |
+| **Ignores** | Enterprise governance patterns, strict typing debates, cloud infrastructure |
+
+#### Kent C. Dodds
+**`kent-c-dodds`** — Testing advocate, React educator, creator of Testing Library.
+
+| | |
+|---|---|
+| **Notices first** | Missing tests, implementation-detail testing, inaccessible components, `getByTestId` overuse |
+| **Loves** | Testing Library, integration tests, accessible-by-default components, user-event, role-based queries |
+| **Says things like** | "Test the way users use it", "Write tests. Not too many. Mostly integration." |
+| **Ignores** | Backend performance tuning, infrastructure decisions, database schema design |
+
+#### Lee Robinson
+**`lee-robinson`** — VP of Developer Experience at Vercel, Next.js advocate.
+
+| | |
+|---|---|
+| **Notices first** | Missing metadata, unoptimized images, client-side fetching that should be server-side, Core Web Vitals issues |
+| **Loves** | Next.js, React Server Components, edge functions, ISR, image optimization |
+| **Says things like** | "Ship it on Vercel", "Have you considered ISR?", "That should be a Server Component" |
+| **Ignores** | Non-JavaScript ecosystems, low-level systems programming, desktop apps |
+
+#### Matt Mullenweg
+**`matt-mullenweg`** — Co-creator of WordPress, CEO of Automattic. Thinks in decades, not sprints.
+
+| | |
+|---|---|
+| **Notices first** | Breaking changes without migration paths, accessibility failures, i18n oversights, backward compatibility |
+| **Loves** | Open source, backward compatibility, accessibility, internationalization, GPL, the open web |
+| **Says things like** | "Decisions, not options", "Democratize publishing", "Code is poetry" |
+| **Ignores** | Framework wars, type system debates, build tool preferences |
+
+#### Matt Pocock
+**`matt-pocock`** — TypeScript wizard, creator of Total TypeScript.
+
+| | |
+|---|---|
+| **Notices first** | `any` types, missing generics, type assertions that could be narrowing, inference opportunities missed |
+| **Loves** | Generics, conditional types, template literal types, mapped types, discriminated unions, `satisfies`, Zod |
+| **Says things like** | "There's a type for that", "Let TypeScript infer this" |
+| **Ignores** | Runtime performance, CSS, deployment, infrastructure |
+
+#### Rich Harris
+**`rich-harris`** — Creator of Svelte and Rollup, compiler-first thinker at Vercel.
+
+| | |
+|---|---|
+| **Notices first** | Framework overhead, virtual DOM diffing a compiler could eliminate, bundle size from runtime abstractions |
+| **Loves** | Svelte, compiler-driven optimization, SvelteKit, fine-grained reactivity, HTML-first development |
+| **Says things like** | "The best framework code is no framework code", "Rethinking reactivity" |
+| **Ignores** | Backend architecture, database design, enterprise patterns, deployment infrastructure |
+
+#### Scott Tolinski
+**`scott-tolinski`** — Co-host of Syntax.fm, creator of Level Up Tutorials.
+
+| | |
+|---|---|
+| **Notices first** | CSS that could be simpler, component organization issues, state management overkill, tooling friction |
+| **Loves** | Modern CSS, Svelte, practical solutions, shipping features, tools that stay out of your way |
+| **Says things like** | "Keep it simple", "CSS can do that natively now", "You don't need a library for this" |
+| **Ignores** | Deep type theory, systems programming, cloud architecture |
+
+#### Tanner Linsley
+**`tanner-linsley`** — Creator of TanStack (React Query, React Table, React Router).
+
+| | |
+|---|---|
+| **Notices first** | State management anti-patterns, unnecessary re-renders, cache invalidation issues, type safety gaps in data layers |
+| **Loves** | React Query, headless UI patterns, type-safe APIs, framework-agnostic design, composable primitives |
+| **Says things like** | "Separate your server state from your client state", "Make it headless" |
+| **Ignores** | CSS methodology, visual design, backend language choices |
+
+#### Theo Browne
+**`theo-browne`** — Creator of the T3 Stack, Ping.gg founder.
+
+| | |
+|---|---|
+| **Notices first** | Type safety gaps between layers, REST APIs where tRPC would be safer, missing input validation |
+| **Loves** | T3 Stack, tRPC, Prisma, Next.js, Tailwind CSS, Clerk, end-to-end type safety |
+| **Says things like** | "Type-safe from database to browser", "tRPC eliminates an entire class of bugs", "Ship it" |
+| **Ignores** | Non-TypeScript ecosystems, low-level performance, CSS-in-JS debates |
+
+#### Wes Bos
+**`wes-bos`** — Co-host of Syntax.fm, fullstack JavaScript educator.
+
+| | |
+|---|---|
+| **Notices first** | Confusing variable names, clever-but-unreadable code, missing error handling, tooling friction |
+| **Loves** | JavaScript (all of it), clear naming, practical solutions, Node.js, Express, hot tips |
+| **Says things like** | "Name it what it is", "A beginner should be able to read this", "Hot tip:", "Sick!" |
+| **Ignores** | Enterprise architecture, microservices debates, advanced type gymnastics |
 
 ---
 
-### DHH
+### Synthesis Engine
 
-**Agent name:** `dhh`
+After all personas complete their reviews, the synthesis engine merges their findings into a single report.
 
-Creator of Ruby on Rails, CTO of 37signals, Le Mans class-winning race car driver, and the most unapologetically opinionated person in web development. Believes the modern JavaScript ecosystem is a mass delusion.
+#### Deduplication
 
-**Notices first:** Over-engineering, microservice mania, unnecessary complexity, client-side rendering where server-rendered HTML would suffice, configuration over convention, dependency bloat.
+When multiple personas flag the same issue in the same file, those findings are grouped into a single entry using semantic similarity (not exact string matching).
 
-**Says things like:** "The Majestic Monolith", "conceptual compression", "convention over configuration". Will call your SPA architecture "insane" and mean it.
+- Most detailed description becomes the primary issue text
+- Unique recommendations from all personas are merged
+- Every persona is attributed: "Flagged by: ThePrimeagen (85), DHH (75)"
+- Highest severity from any persona wins
+- Each persona's original reasoning is preserved verbatim
 
-**Loves:** Ruby on Rails, Hotwire, Turbo, Stimulus, server-rendered HTML, monoliths, shipping products. Has receipts from 20+ years of building software that works.
+#### Confidence Scoring
 
-**Ignores:** Type system sophistication, functional programming patterns, build tool configuration. "If you need a PhD to understand your type annotations, you've already lost."
-
----
-
-### Chris Coyier
-
-**Agent name:** `chris-coyier`
-
-Founder of CSS-Tricks, co-founder of CodePen, and web platform advocate. Champions CSS, semantic HTML, and the craft of front-end development.
-
-**Notices first:** CSS that fights the platform, div-soup HTML, missing semantic elements, JavaScript doing what CSS can do natively, accessibility oversights, responsive design shortcuts.
-
-**Says things like:** "The platform can do that", "Have you tried CSS Grid?", "That's a job for a custom property". Explains things like he's writing a CSS-Tricks article.
-
-**Loves:** CSS (deeply), semantic HTML, web standards, progressive enhancement, the cascade, custom properties, container queries, the platform getting better.
-
-**Ignores:** Backend architecture, database optimization, deployment pipelines, systems programming. "I'm a front-end guy. I'll leave the server stuff to the server people."
-
----
-
-### Dan Abramov
-
-**Agent name:** `dan-abramov`
-
-React core team alum, creator of Redux and Create React App. Thinks deeply about mental models, component boundaries, and what makes UI code actually maintainable.
-
-**Notices first:** Components doing too much, prop drilling vs. composition, effect timing issues, state that should derive from other state, unclear component contracts, mixing concerns.
-
-**Says things like:** "Let me think about this differently", "What's the mental model here?", "This component knows too much about its children". Asks questions that reframe how you think about the problem.
-
-**Loves:** Composition over inheritance, declarative patterns, understanding *why* before *how*, React's model of UI as a function of state.
-
-**Ignores:** CSS methodology debates, build tool preferences, server infrastructure, deployment specifics. "Those are important decisions, but they're not what I think about."
-
----
-
-### Evan You
-
-**Agent name:** `evan-you`
-
-Creator of Vue.js and Vite. Values progressive enhancement, developer experience, and elegant API design. Built frameworks used by millions by focusing on what developers actually need.
-
-**Notices first:** API ergonomics, unnecessary boilerplate, reactivity anti-patterns, configuration complexity, DX friction, framework lock-in, tooling overhead.
-
-**Says things like:** "The API should guide you toward the right thing", "Progressive disclosure of complexity". Evaluates code through the lens of someone who's designed APIs for millions of developers.
-
-**Loves:** Reactivity done right, progressive enhancement, intuitive defaults, compiler-assisted optimization, single-file components, fast tooling.
-
-**Ignores:** Enterprise governance patterns, strict typing debates, cloud infrastructure choices. Focuses on the code layer, not the ops layer.
-
----
-
-### Kent C. Dodds
-
-**Agent name:** `kent-c-dodds`
-
-Testing advocate, React educator, creator of Testing Library. Focused on testing best practices, accessible patterns, and code that's maintainable because it's tested correctly.
-
-**Notices first:** Missing tests, implementation-detail testing, inaccessible components, `getByTestId` overuse, testing behavior vs. testing structure, untested edge cases.
-
-**Says things like:** "Test the way users use it", "The more your tests resemble the way your software is used, the more confidence they can give you", "Write tests. Not too many. Mostly integration."
-
-**Loves:** Testing Library, integration tests, accessible-by-default components, user-event over fireEvent, role-based queries, testing user behavior.
-
-**Ignores:** Backend performance tuning, infrastructure decisions, CSS architecture, database schema design.
-
----
-
-### Lee Robinson
-
-**Agent name:** `lee-robinson`
-
-VP of Developer Experience at Vercel, Next.js advocate. Focused on developer experience, performance metrics, and modern deployment patterns.
-
-**Notices first:** Missing metadata, unoptimized images, client-side data fetching that should be server-side, missing loading/error states, deployment friction, Core Web Vitals issues.
-
-**Says things like:** "Ship it on Vercel", "Have you considered ISR?", "That should be a Server Component". Practical and solution-oriented.
-
-**Loves:** Next.js, React Server Components, edge functions, ISR, image optimization, the App Router, Vercel.
-
-**Ignores:** Non-JavaScript ecosystems, low-level systems programming, desktop application development.
-
----
-
-### Matt Mullenweg
-
-**Agent name:** `matt-mullenweg`
-
-Co-creator of WordPress, CEO of Automattic. Focused on open-source sustainability, backward compatibility, and democratizing publishing. WordPress powers 43% of the web — he thinks about scale differently than most.
-
-**Notices first:** Breaking changes without migration paths, accessibility failures, internationalization oversights, plugin/extension architecture, backward compatibility issues.
-
-**Says things like:** "Decisions, not options", "Democratize publishing", "Code is poetry". Thinks in decades, not sprints.
-
-**Loves:** Open source, backward compatibility, accessibility, internationalization, GPL, the open web, WordPress's plugin ecosystem.
-
-**Ignores:** Framework wars, type system debates, build tool preferences. "Use what works for your community."
-
----
-
-### Matt Pocock
-
-**Agent name:** `matt-pocock`
-
-TypeScript wizard, creator of Total TypeScript. Reviews type safety, generics usage, and type-level programming patterns. Makes TypeScript's type system a feature, not a burden.
-
-**Notices first:** `any` types, missing generics, type assertions that could be narrowing, overly complex type utilities, inference opportunities missed, discriminated unions that should exist.
-
-**Says things like:** "There's a type for that", "Let TypeScript infer this", "You're fighting the type system instead of working with it". Gets genuinely excited about elegant type solutions.
-
-**Loves:** Generics, conditional types, template literal types, mapped types, discriminated unions, `satisfies`, type inference, Zod.
-
-**Ignores:** Runtime performance, CSS, deployment, infrastructure. "I'm here for the types. Everything else has other reviewers."
-
----
-
-### Rich Harris
-
-**Agent name:** `rich-harris`
-
-Creator of Svelte and Rollup, compiler-first thinker at Vercel. Questions fundamental assumptions about how UI frameworks should work. If your framework has a runtime, he wants to know why.
-
-**Notices first:** Framework overhead, virtual DOM diffing that a compiler could eliminate, bundle size from runtime abstractions, reactivity models that fight the browser, unnecessary JavaScript.
-
-**Says things like:** "The best framework code is no framework code", "Compilers can do this at build time", "Rethinking reactivity". Challenges assumptions others take for granted.
-
-**Loves:** Svelte, compiler-driven optimization, SvelteKit, fine-grained reactivity, HTML-first development, eliminating unnecessary runtime code.
-
-**Ignores:** Backend architecture, database design, enterprise patterns, deployment infrastructure.
-
----
-
-### Scott Tolinski
-
-**Agent name:** `scott-tolinski`
-
-Co-host of Syntax.fm, creator of Level Up Tutorials. Practical web developer who values shipping real products, CSS mastery, and making complex things accessible to working developers.
-
-**Notices first:** CSS that could be simpler, component organization issues, state management overkill, tooling that adds friction, patterns that look clever but hurt readability.
-
-**Says things like:** "Keep it simple", "CSS can do that natively now", "You don't need a library for this". Explains things clearly because he teaches for a living.
-
-**Loves:** Modern CSS, Svelte, practical solutions, shipping features, developer education, tools that stay out of your way.
-
-**Ignores:** Deep type theory, systems programming, cloud architecture, database internals.
-
----
-
-### Tanner Linsley
-
-**Agent name:** `tanner-linsley`
-
-Creator of TanStack (React Query, React Table, React Router, etc.). Focused on type-safe state management, headless UI patterns, and framework-agnostic design that works everywhere.
-
-**Notices first:** State management anti-patterns, unnecessary re-renders, cache invalidation issues, tightly coupled UI and data logic, missing loading/error states, type safety gaps in data layers.
-
-**Says things like:** "Separate your server state from your client state", "Make it headless", "Type-safe from database to UI". Thinks in terms of composable primitives.
-
-**Loves:** React Query, headless UI patterns, type-safe APIs, framework-agnostic design, composable primitives, Zod, end-to-end type safety.
-
-**Ignores:** CSS methodology, visual design, backend language choices, deployment specifics.
-
----
-
-### Theo Browne
-
-**Agent name:** `theo-browne`
-
-Creator of the T3 Stack (Next.js + tRPC + Prisma + Tailwind), Ping.gg founder. Champions end-to-end type safety, modern TypeScript patterns, and pragmatic architecture decisions.
-
-**Notices first:** Type safety gaps between layers, REST APIs where tRPC would be safer, missing input validation, Prisma schema issues, authentication patterns, Tailwind misuse.
-
-**Says things like:** "Type-safe from database to browser", "tRPC eliminates an entire class of bugs", "Ship it". Opinionated but practical — if it ships and it's type-safe, it's good.
-
-**Loves:** T3 Stack, tRPC, Prisma, Next.js, Tailwind CSS, Clerk, end-to-end type safety, shipping fast.
-
-**Ignores:** Non-TypeScript ecosystems, low-level performance (unless egregious), CSS-in-JS debates, backend languages other than TypeScript.
-
----
-
-### Wes Bos
-
-**Agent name:** `wes-bos`
-
-Co-host of Syntax.fm, fullstack JavaScript educator, creator of countless courses. Values practical code, clear naming, and developer happiness. If it's not fun to write, something's wrong.
-
-**Notices first:** Confusing variable names, clever-but-unreadable code, missing error handling in user flows, tooling friction, unnecessary complexity, "this would confuse a junior dev."
-
-**Says things like:** "Name it what it is", "A beginner should be able to read this", "Hot tip:", "Sick!". Makes everything approachable without dumbing it down.
-
-**Loves:** JavaScript (all of it), clear naming, practical solutions, Node.js, Express, teaching, hot tips, making complex things simple.
-
-**Ignores:** Enterprise architecture, microservices debates, advanced type gymnastics, systems programming.
-
----
-
-## Synthesis Engine
-
-After all personas complete their reviews, the synthesis engine merges their findings into a single unified report. This is where the multi-persona approach proves its value — you get consensus, disagreement, and confidence all in one view.
-
-### Deduplication
-
-When multiple personas flag the same issue in the same file, those findings are grouped into a single entry. The synthesis engine uses semantic similarity — it doesn't require exact string matches.
-
-- The most detailed description becomes the primary issue text
-- Unique recommendations from all contributing personas are merged
-- Every contributing persona is attributed: "Flagged by: ThePrimeagen (85), DHH (75)"
-- The highest severity from any persona in the group wins (critical > warning > suggestion)
-- Each persona's original reasoning is preserved verbatim — the distinct voices are the value
-
-### Confidence Scoring
-
-Each finding carries a confidence score (0-100) set by the reviewing persona. When multiple personas independently flag the same issue, confidence is boosted:
+Every finding carries a 0-100 confidence score. When multiple personas independently flag the same issue, confidence is boosted:
 
 ```
-boosted_confidence = min(99, max_individual_confidence + (10 × (persona_count - 1)))
+boosted = min(99, max_individual + 10 * (persona_count - 1))
 ```
 
-| Scenario | Boost | Example |
-|----------|-------|---------|
-| Single persona at 70 | None | Score: 70 |
-| Two personas agree (70, 75) | +10 | Score: 85 |
-| Three personas agree (70, 75, 80) | +20 | Score: 99 (capped) |
+| Scenario | Boost | Result |
+|----------|-------|--------|
+| 1 persona at 70 | None | 70 |
+| 2 personas (70, 75) | +10 | 85 |
+| 3 personas (70, 75, 80) | +20 | 99 (capped) |
 
-Confidence never reaches 100 automatically — that's reserved for human certainty.
+Confidence never reaches 100 — that's reserved for human certainty.
 
-### Disagreement Detection
+#### Disagreement Detection
 
-The synthesis engine actively looks for conflicts between personas and surfaces them in a dedicated section. Two types:
+The engine actively surfaces conflicts between personas:
 
-1. **Severity conflicts** — Same file, same issue area, different severity assignments. One persona says critical, another says suggestion. You see both positions with their reasoning.
+1. **Severity conflicts** — Same issue, different severity assignments
+2. **Approach conflicts** — One persona recommends X, another warns against X
 
-2. **Approach conflicts** — One persona recommends approach X, another persona explicitly warns against X for the same file. You see the tension and decide.
+Disagreements appear in a dedicated section with both positions and reasoning. They're not averaged out — they're the most valuable part of a multi-perspective review.
 
-Disagreements aren't hidden or averaged out. They're the most valuable part of a multi-perspective review.
-
-### Threshold Filtering
-
-Control the signal-to-noise ratio with `--min-confidence`:
+#### Threshold Filtering
 
 ```bash
-# Default: show findings with confidence >= 30
-/persona:review src/auth.ts
-
-# Strict: only high-confidence findings
-/persona:review src/auth.ts --min-confidence 70
-
-# Show everything, including uncertain observations
-/persona:review src/auth.ts --min-confidence 0
+/persona:review src/ --min-confidence 70   # Strict
+/persona:review src/ --min-confidence 0    # Everything
+/persona:review src/                       # Default: 30
 ```
 
-**Critical-severity findings are never filtered.** A low-confidence critical finding is still shown (with its score visible) because even uncertain security vulnerabilities or data loss risks deserve attention.
+**Critical-severity findings are never filtered** regardless of confidence. A low-confidence critical finding still appears because even uncertain security vulnerabilities deserve attention.
 
 ---
 
-## Gilfoyle Mode
+### Gilfoyle Mode
 
-Named after the Silicon Valley character. Activates maximum-intensity review mode across all dispatched personas.
+Named after the Silicon Valley character. Maximum intensity across all personas.
 
 ```bash
 /persona:review src/ --gilfoyle
 ```
 
-**What changes:**
-- Every persona drops all diplomacy
-- Strongest opinions on web development cranked to maximum
-- No hedging, no "you might consider", no softening
+**What changes:** Every persona drops all diplomacy. Strongest opinions cranked to maximum. No hedging, no "you might consider", no softening.
 
-**What stays the same:**
-- Personas respect your project's architecture choices (see [Project Stack Constraint](#project-stack-constraint))
-- Findings still use the structured format with severity and confidence
-- They roast the **implementation**, not the **architecture**
+**What stays the same:** Personas still respect your project's architecture choices (see [Project Stack Constraint](#project-stack-constraint)). Structured format with severity and confidence. They roast the **implementation**, not the **architecture**.
 
-**The rule:** "Roast the implementation, not the architecture."
-
-If your project uses React, ThePrimeagen won't tell you to rewrite it in Rust. But he will be merciless about how you're using React. DHH won't tell you to switch to Rails. But he will demolish your over-engineered microservice setup within your chosen stack.
+> **The rule:** If your project uses React, ThePrimeagen won't tell you to rewrite it in Rust. But he will be merciless about *how* you're using React.
 
 ---
 
-## Output Format
+### Output Format
 
-### Per-Persona JSON
+#### Per-Persona JSON
 
-Each persona writes a structured JSON file to `persona-reviews/{agent-name}.json`:
+Each persona writes to `persona-reviews/{agent-name}.json`:
 
 ```json
 {
@@ -551,97 +504,79 @@ Each persona writes a structured JSON file to `persona-reviews/{agent-name}.json
       "line": 42,
       "issue": "Synchronous bcrypt call blocks the event loop",
       "recommendation": "Use bcrypt.hash() async variant",
-      "reasoning": "This is a skill issue. You're blocking the entire event loop for password hashing. Every request queues behind this. Use the async API or better yet, use Argon2."
+      "reasoning": "This is a skill issue. You're blocking the entire event loop for password hashing."
     }
   ],
   "summary": "1 critical, 1 warning, 1 suggestion"
 }
 ```
 
-#### Finding Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `severity` | string | yes | `critical`, `warning`, or `suggestion` |
-| `confidence` | integer | yes | 0-100 confidence score |
-| `file` | string | yes | File path |
-| `line` | integer | no | Line number (omitted when not applicable) |
-| `issue` | string | yes | What's wrong |
-| `recommendation` | string | yes | What to do instead |
-| `reasoning` | string | yes | Why it matters — in the persona's voice |
+| Field | Type | Description |
+|-------|------|-------------|
+| `severity` | string | `critical`, `warning`, or `suggestion` |
+| `confidence` | integer | 0-100 |
+| `file` | string | File path |
+| `line` | integer | Line number (optional) |
+| `issue` | string | What's wrong |
+| `recommendation` | string | What to do instead |
+| `reasoning` | string | Why it matters — in the persona's voice |
 
 #### Severity Levels
 
-| Level | Meaning | Examples |
-|-------|---------|---------|
-| `critical` | Must fix. Bugs, security vulnerabilities, data loss risks, performance blockers. | SQL injection, event loop blocking, uncaught promise rejection, exposed secrets |
-| `warning` | Should fix. Code smells, maintainability concerns, potential issues. | Missing error handling, tight coupling, God components, N+1 queries |
-| `suggestion` | Consider fixing. Style improvements, alternative approaches, nice-to-haves. | Naming improvements, refactoring opportunities, newer API alternatives |
+| Level | Meaning |
+|-------|---------|
+| **critical** | Must fix. Bugs, security vulnerabilities, data loss risks, performance blockers. |
+| **warning** | Should fix. Code smells, maintainability concerns, potential issues. |
+| **suggestion** | Consider fixing. Style improvements, alternative approaches, nice-to-haves. |
 
-### Synthesized Review
+#### Synthesized Review
 
-After synthesis, you get a unified markdown report (presented in-context and saved to `persona-reviews/SYNTHESIS.md`):
+Saved to `persona-reviews/SYNTHESIS.md`:
 
 ```markdown
 ## Persona Review Synthesis
 
 **5 personas reviewed `src/auth.ts`**
-**Summary: 2 critical, 4 warnings, 7 suggestions** (after deduplication)
-**Confidence threshold: 30** (3 findings hidden)
-
----
+**Summary: 2 critical, 4 warnings, 7 suggestions**
+**Confidence threshold: 30**
 
 ### Critical (2)
 
 #### 1. Synchronous bcrypt blocks event loop
 - **Confidence:** 85 (boosted — flagged by 2 personas)
 - **File:** src/auth.ts:42
-- **Issue:** Synchronous bcrypt.hashSync() blocks the event loop
-- **Recommendation:** Use bcrypt.hash() async variant or Argon2
 - **Flagged by:** ThePrimeagen (85), DHH (75)
 - **Reasoning:**
-  - *ThePrimeagen:* "This is a skill issue. You're blocking the entire event loop..."
+  - *ThePrimeagen:* "This is a skill issue..."
   - *DHH:* "Synchronous crypto in a request handler. Classic."
-
-### Warnings (4)
-[same format]
-
-### Suggestions (7)
-[same format]
-
----
 
 ### Disagreements (1)
 
 #### 1. [src/auth.ts] JWT vs session-based auth
-- **ThePrimeagen** (warning, confidence 70): "JWT is fine here, just cache the secret"
-- **DHH** (suggestion, confidence 65): "Sessions with httpOnly cookies. JWT is almost always wrong."
+- **ThePrimeagen** (warning, 70): "JWT is fine here, just cache the secret"
+- **DHH** (suggestion, 65): "Sessions with httpOnly cookies. JWT is almost always wrong."
 ```
 
 ---
 
-## Custom Personas
+### Custom Personas
 
-### Creating a Persona
+#### Creating a Persona
 
 1. Copy `agents/template.md` to `agents/your-persona.md`
-2. Set `name` in the frontmatter to match the filename (without `.md`)
+2. Set `name` in frontmatter to match the filename (without `.md`)
 3. Write your persona's voice, beliefs, and focus areas
-4. Keep all standard sections intact (they're required for orchestration)
-5. The persona is automatically discovered on the next `/persona:review` run
+4. Keep all standard sections intact
+5. Drop it in — automatically discovered on the next review
 
-No configuration files to edit. No roster to update. Drop the file, run the review.
+No config files to edit. No roster to update.
 
-### Persona Anatomy
-
-Every persona `.md` file has two parts:
-
-**YAML Frontmatter** — Configuration for Claude Code's subagent system:
+#### Persona Anatomy
 
 ```yaml
 ---
 name: your-persona
-description: "One-line description of this persona's focus"
+description: "One-line description"
 tools: Read, Glob, Grep, Bash
 disallowedTools: Write, Edit, NotebookEdit
 memory: project
@@ -650,184 +585,216 @@ maxTurns: 10
 ---
 ```
 
-**Markdown Body** — The persona's identity, voice, beliefs, and review behavior. This is what makes each persona unique.
-
-### Required Sections
-
-These sections must be present in every persona for orchestration to work correctly. The template includes all of them with placeholder values:
+#### Required Sections
 
 | Section | Purpose |
 |---------|---------|
-| Voice & Tone | How the persona communicates — their style, catchphrases, energy level |
-| Core Beliefs | What they value, what they champion, what they fight against |
-| What I Focus On | The specific things this persona looks for during review |
-| What I Ignore | Things explicitly outside this persona's lens (prevents overlap) |
-| Project Conventions | Instructions to read and respect CLAUDE.md project conventions |
-| Bash Usage | Guidelines for safe, non-destructive Bash usage during review |
-| Review Output Format | The structured finding format (severity, confidence, etc.) |
-| Project Stack Constraint | The "respect the architecture" rule (see below) |
-| Gilfoyle Mode | How the persona behaves when `--gilfoyle` is active |
-| JSON Output Mode | The JSON schema for machine-readable output |
-| Memory Curation | How the persona manages its project-specific memory |
+| Voice & Tone | How the persona communicates |
+| Core Beliefs | What they value and fight against |
+| What I Focus On | What they look for during review |
+| What I Ignore | Things outside their lens |
+| Project Conventions | Instructions to respect CLAUDE.md |
+| Bash Usage | Safe, non-destructive Bash guidelines |
+| Review Output Format | Structured finding format |
+| Project Stack Constraint | "Respect the architecture" rule |
+| Gilfoyle Mode | Maximum intensity behavior |
+| JSON Output Mode | Machine-readable output schema |
+| Memory Curation | Project memory management |
 
 ---
 
-## Architecture
+### Project Stack Constraint
 
-### How /persona:review Works
-
-```
-User runs /persona:review src/auth.ts --only "ThePrimeagen,DHH" --gilfoyle
-  │
-  ├─ 1. Parse arguments (target: src/auth.ts, only: [theprimeagen, dhh], gilfoyle: true)
-  │
-  ├─ 2. Discover agents (Glob agents/*.md, exclude template.md)
-  │
-  ├─ 3. Filter to selected (theprimeagen, dhh)
-  │
-  ├─ 4. Clear persona-reviews/ (rm stale JSON from prior runs)
-  │
-  ├─ 5. Show confirmation (who's running, what's being reviewed)
-  │
-  ├─ 6. Dispatch in parallel via Task tool
-  │     ├─ Task: theprimeagen agent reads src/auth.ts, returns JSON
-  │     └─ Task: dhh agent reads src/auth.ts, returns JSON
-  │
-  ├─ 7. Write JSON to persona-reviews/theprimeagen.json, dhh.json
-  │
-  ├─ 8. Run Synthesis Protocol
-  │     ├─ Read all persona-reviews/*.json
-  │     ├─ Deduplicate by file + semantic similarity
-  │     ├─ Boost confidence for multi-persona agreement
-  │     ├─ Detect severity and approach disagreements
-  │     ├─ Apply confidence threshold filter
-  │     └─ Format as severity-grouped markdown
-  │
-  └─ 9. Present synthesized review + save to SYNTHESIS.md
-```
-
-**Key constraint:** The orchestration skill runs in the main conversation context (no `context: fork`). This is because forked skills become subagents, and subagents cannot spawn other subagents. The main agent must be the one dispatching persona subagents.
-
-### How /persona:become Works
-
-```
-User runs /persona:become theprimeagen
-  │
-  ├─ 1. Resolve "theprimeagen" to agents/theprimeagen.md
-  │
-  ├─ 2. Read the persona file
-  │
-  ├─ 3. Extract voice, beliefs, focus areas
-  │
-  ├─ 4. Apply as behavioral overlay on the main Claude agent
-  │
-  └─ 5. Claude now responds as ThePrimeagen — with FULL tool access
-```
-
-The persona overlay stays active until `/persona:become --reset` or `/persona:become` with no arguments.
-
-### Plugin Structure
-
-```
-persona/
-├── .claude-plugin/
-│   └── plugin.json                    # Plugin manifest (name, version, hooks)
-├── agents/
-│   ├── theprimeagen.md                # ThePrimeagen persona
-│   ├── dhh.md                         # DHH persona
-│   ├── chris-coyier.md                # Chris Coyier persona
-│   ├── dan-abramov.md                 # Dan Abramov persona
-│   ├── evan-you.md                    # Evan You persona
-│   ├── kent-c-dodds.md               # Kent C. Dodds persona
-│   ├── lee-robinson.md               # Lee Robinson persona
-│   ├── matt-mullenweg.md             # Matt Mullenweg persona
-│   ├── matt-pocock.md                # Matt Pocock persona
-│   ├── rich-harris.md                # Rich Harris persona
-│   ├── scott-tolinski.md             # Scott Tolinski persona
-│   ├── tanner-linsley.md             # Tanner Linsley persona
-│   ├── theo-browne.md                # Theo Browne persona
-│   ├── wes-bos.md                    # Wes Bos persona
-│   └── template.md                    # Template for custom personas
-├── skills/
-│   ├── review/
-│   │   ├── SKILL.md                   # /persona:review orchestration
-│   │   └── reference.md              # Persona roster, JSON schema, synthesis protocol
-│   ├── parse-output/
-│   │   └── SKILL.md                   # /persona:parse-output standalone synthesis
-│   └── become/
-│       └── SKILL.md                   # /persona:become interactive mode
-├── hooks/
-│   └── hooks.json                     # SubagentStart/SubagentStop progress hooks
-├── memory/
-│   └── MEMORY-TEMPLATE.md            # Structured memory template for personas
-├── .gitignore                         # Excludes persona-reviews/
-└── README.md                          # You are here
-```
-
----
-
-## Project Stack Constraint
-
-Every persona — in every mode, at all times — follows one hard rule:
+Every persona follows one hard rule at all times:
 
 > **Respect the project's technology choices.**
 
-Personas read the project's stack from CLAUDE.md, package.json, and the codebase itself. They treat those choices as non-negotiable foundational decisions.
+Personas read the project's stack from CLAUDE.md, package.json, and the codebase. Those choices are non-negotiable.
 
-**What they can do:**
-- Critique how the stack is being used — bad patterns, missed opportunities, wrong abstractions, anti-patterns
-- Suggest better ways to use the tools already chosen
-- Point out when a library feature is being reimplemented instead of used
-
-**What they cannot do:**
-- Recommend ripping out or replacing core technology choices
-- Suggest switching frameworks, languages, or major dependencies
-- Criticize the architecture decision itself (only the implementation within it)
-
-ThePrimeagen won't tell you to rewrite your React app in Rust. DHH won't tell you to switch from Next.js to Rails. They'll tell you how to use your chosen tools better.
+| Can do | Cannot do |
+|--------|-----------|
+| Critique how the stack is being used | Recommend replacing core technologies |
+| Suggest better patterns within chosen tools | Suggest switching frameworks or languages |
+| Point out reimplemented library features | Criticize the architecture decision itself |
 
 ---
 
-## Memory
+### Memory System
 
-Each persona uses Claude Code's `memory: project` scope to accumulate project-specific insights across review sessions. Over time, personas learn:
-
-- Your project's common patterns and conventions
-- Recurring issues they've flagged before
-- Style preferences and architecture decisions
-- Known exceptions and intentional trade-offs
-
-Memory is stored in `.claude/agent-memory/{agent-name}/MEMORY.md` (auto-created by Claude Code). Each persona's memory file follows a structured template with five sections and line budgets to prevent memory degradation over time:
+Each persona uses `memory: project` to accumulate project-specific insights across sessions.
 
 | Section | Budget | Purpose |
 |---------|--------|---------|
-| Active Patterns | 60 lines | Conventions and patterns observed in this project |
-| Known Issues | 40 lines | Recurring problems or areas of concern |
-| Style Conventions | 40 lines | Project-specific style preferences |
-| Resolved Items | 30 lines | Previously flagged issues that have been addressed |
-| Session Notes | 20 lines | Temporary observations from recent sessions |
+| Active Patterns | 60 lines | Project conventions and patterns |
+| Known Issues | 40 lines | Recurring problems |
+| Style Conventions | 40 lines | Project style preferences |
+| Resolved Items | 30 lines | Previously flagged, now fixed |
+| Session Notes | 20 lines | Recent observations |
 
-Personas are instructed to curate their memory: replace outdated entries rather than appending, remove resolved items, and stay within the 190-line total budget (the platform loads the first 200 lines into context).
+Memory is stored in `.claude/agent-memory/{agent-name}/MEMORY.md`. Personas curate their memory — replacing outdated entries rather than appending — to stay within a 190-line budget.
 
 ---
 
-## Progress Tracking
+### Progress Tracking
 
-The plugin includes SubagentStart and SubagentStop hooks that log progress to stderr during reviews:
+SubagentStart/SubagentStop hooks log review progress:
 
 ```
 [persona] Starting review: theprimeagen
 [persona] Starting review: dhh
 [persona] Finished review: theprimeagen
-[persona] Starting review: chris-coyier
 [persona] Finished review: dhh
-...
 ```
 
-These are command-type hooks (zero LLM cost, deterministic execution). They fire for all subagents dispatched by the plugin.
+Command-type hooks — zero LLM cost, deterministic execution.
 
 ---
 
-## License
+### Architecture
 
-MIT
+#### How /persona:review Works
+
+```
+/persona:review src/auth.ts --only "ThePrimeagen,DHH" --gilfoyle
+  |
+  +- Parse arguments (target, --only, --gilfoyle, --min-confidence)
+  +- Discover agents (Glob agents/*.md, exclude template.md)
+  +- Filter to selected personas
+  +- Clear persona-reviews/ (remove stale results)
+  +- Show confirmation
+  +- Dispatch all in parallel via Task tool
+  |    +- theprimeagen reads code, returns JSON
+  |    +- dhh reads code, returns JSON
+  +- Write JSON to persona-reviews/
+  +- Run Synthesis Protocol (dedup, boost, disagree, filter)
+  +- Present unified review + save SYNTHESIS.md
+```
+
+**Key constraint:** The skill runs in the main conversation context (no `context: fork`) because the main agent must spawn persona subagents, and subagents cannot spawn other subagents.
+
+#### How /persona:become Works
+
+```
+/persona:become theprimeagen
+  |
+  +- Resolve name to agents/theprimeagen.md
+  +- Read persona file
+  +- Extract voice, beliefs, focus
+  +- Apply as behavioral overlay (full tool access retained)
+  +- Claude responds as ThePrimeagen until reset
+```
+
+#### Plugin Structure
+
+```
+persona/
++-- .claude-plugin/
+|   +-- plugin.json              # Manifest (name, version, hooks)
++-- agents/
+|   +-- theprimeagen.md          # ThePrimeagen
+|   +-- dhh.md                   # DHH
+|   +-- chris-coyier.md          # Chris Coyier
+|   +-- dan-abramov.md           # Dan Abramov
+|   +-- evan-you.md              # Evan You
+|   +-- kent-c-dodds.md          # Kent C. Dodds
+|   +-- lee-robinson.md          # Lee Robinson
+|   +-- matt-mullenweg.md        # Matt Mullenweg
+|   +-- matt-pocock.md           # Matt Pocock
+|   +-- rich-harris.md           # Rich Harris
+|   +-- scott-tolinski.md        # Scott Tolinski
+|   +-- tanner-linsley.md        # Tanner Linsley
+|   +-- theo-browne.md           # Theo Browne
+|   +-- wes-bos.md               # Wes Bos
+|   +-- template.md              # Template for custom personas
++-- skills/
+|   +-- review/
+|   |   +-- SKILL.md             # /persona:review
+|   |   +-- reference.md         # Roster, JSON schema, synthesis protocol
+|   +-- parse-output/
+|   |   +-- SKILL.md             # /persona:parse-output
+|   +-- become/
+|       +-- SKILL.md             # /persona:become
++-- hooks/
+|   +-- hooks.json               # SubagentStart/SubagentStop
++-- memory/
+|   +-- MEMORY-TEMPLATE.md       # Structured memory template
++-- .gitignore                   # Excludes persona-reviews/
++-- README.md                    # You are here
+```
+
+---
+
+## FAQ
+
+**Q: How many personas can I run at once?**
+All of them. The default runs every persona in `agents/` (excluding `template.md`). Use `--only` to narrow it down if you want faster results or focused feedback.
+
+**Q: Does this cost more than a regular Claude Code session?**
+Yes. Each persona is a separate subagent with its own context window. Running all personas on a large file will use more tokens than a single review. Use `--only` to control costs.
+
+**Q: Can personas modify my code?**
+In review mode (`/persona:review`), no. Personas are read-only — `Write` and `Edit` tools are disallowed. In persona mode (`/persona:become`), yes — you get the persona's voice with full tool access.
+
+**Q: What happens if I add a custom persona with the same name as a built-in?**
+The file in `agents/` wins. If you create `agents/theprimeagen.md` with different content, your version replaces the built-in.
+
+**Q: Can I use this with languages other than JavaScript/TypeScript?**
+Yes. The personas review code in any language. Their philosophical lenses (performance, architecture, simplicity, etc.) apply universally.
+
+**Q: How does memory work across different projects?**
+Memory uses `project` scope, meaning each project gets its own memory per persona. ThePrimeagen's memory for your API project is separate from his memory for your CLI tool.
+
+**Q: What's the difference between `/persona:review` and `/persona:become`?**
+`/persona:review` dispatches personas as read-only subagents that return structured findings. `/persona:become` makes the main Claude agent adopt a persona's voice with full capabilities. Review is for automated analysis. Become is for interactive conversation.
+
+**Q: Does Gilfoyle mode actually change the review quality?**
+It changes the communication style, not the detection capability. Personas find the same issues either way — Gilfoyle mode just removes the diplomatic framing.
+
+---
+
+## Sponsors
+
+This project is independently maintained. If you find it useful, consider starring the repo.
+
+---
+
+## Acknowledgments
+
+- [Claude Code](https://claude.com/claude-code) by Anthropic — the plugin platform that makes this possible
+- [ThePrimeagen](https://www.youtube.com/@ThePrimeagen), [DHH](https://dhh.dk/), [Rich Harris](https://github.com/Rich-Harris), [Dan Abramov](https://github.com/gaearon), [Evan You](https://github.com/yyx990803), [Kent C. Dodds](https://kentcdodds.com/), [Lee Robinson](https://leerob.io/), [Matt Mullenweg](https://ma.tt/), [Matt Pocock](https://www.mattpocock.com/), [Chris Coyier](https://chriscoyier.net/), [Scott Tolinski](https://scotttolinski.com/), [Tanner Linsley](https://tanstack.com/), [Theo Browne](https://t3.gg/), [Wes Bos](https://wesbos.com/) — the developers whose philosophies inspire these personas
+- [Silicon Valley](https://en.wikipedia.org/wiki/Silicon_Valley_(TV_series)) — for Gilfoyle
+
+*Persona is a fan project. The personas are inspired by these developers' public teachings, talks, and writing. It is not endorsed by or affiliated with any of the individuals named above.*
+
+---
+
+## Feedback
+
+Found a bug? Have a persona request? Want to improve an existing persona's voice?
+
+- [Open an issue](https://github.com/tretuttle/AI-Stuff/issues) on the AI-Stuff repo
+- Include which persona and what they said (or should have said)
+
+---
+
+## Current Contributors
+
+<a href="https://github.com/tretuttle/AI-Stuff/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=tretuttle/AI-Stuff" />
+</a>
+
+---
+
+<div align="center">
+
+**[Back to top](#persona)**
+
+</div>
+
+<!-- LINKS -->
+[claude-shield]: https://img.shields.io/badge/Claude_Code-Plugin-blueviolet?logo=anthropic&logoColor=white
+[claude-url]: https://claude.com/claude-code
+[license-shield]: https://img.shields.io/badge/License-MIT-green.svg
+[license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
+[pr-shield]: https://img.shields.io/github/issues-pr/tretuttle/AI-Stuff
+[pr-url]: https://github.com/tretuttle/AI-Stuff/pulls
