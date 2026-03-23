@@ -1,6 +1,6 @@
 {
   "name": "browser-capture",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Playwright+CDP browser resource capture engine. Archives all resources the browser receives during navigation into a domain-organized directory with full metadata.",
   "author": {
     "name": "Trent",
