@@ -44,6 +44,22 @@ Complete browser resource capture using Playwright + Chrome DevTools Protocol. A
 
 [View plugin details](./plugins/browser-capture/README.md)
 
+### persona
+
+Multi-persona code review orchestrator — get feedback from diverse expert perspectives.
+
+**Features:**
+- 15+ expert persona agents (Chris Coyier, DHH, and more)
+- Orchestration skill to run multi-persona reviews
+- Progress tracking via hooks
+- Persistent memory for accumulated insights
+
+```
+/plugin install persona@ai-stuff
+```
+
+[View plugin details](./persona/README.md)
+
 ## License
 
 MIT
