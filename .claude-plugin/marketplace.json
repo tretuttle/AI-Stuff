@@ -8,6 +8,11 @@
       "name": "omarchy-theme",
       "source": "./omarchy-theme",
       "description": "Create Omarchy desktop themes from wallpaper images"
+    },
+    {
+      "name": "persona",
+      "source": "./persona",
+      "description": "Multi-persona code review orchestrator — get feedback from diverse expert perspectives"
     }
   ]
 }
