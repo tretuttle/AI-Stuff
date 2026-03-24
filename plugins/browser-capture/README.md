@@ -13,7 +13,7 @@
 
 **Complete browser resource capture for [Claude Code](https://claude.com/claude-code)**
 
-The CLI equivalent of Chrome's "Save All Resources" DevTools extension. Captures every resource the browser receives during navigation and writes them to a domain-organized directory with full metadata.
+Captures every resource the browser receives during navigation and writes them to a domain-organized directory with full metadata.
 
 </div>
 
