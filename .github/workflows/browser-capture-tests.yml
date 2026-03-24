@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'plugins/browser-capture/**'
+      - '.github/workflows/browser-capture-tests.yml'
   pull_request:
     paths:
       - 'plugins/browser-capture/**'
+      - '.github/workflows/browser-capture-tests.yml'
 
 jobs:
   syntax-check:
