@@ -1,16 +1,29 @@
+<!-- PROJECT SHIELDS -->
+<div align="center">
+
+[![GitHub Stars][stars-shield]][stars-url]
+[![License: MIT][license-shield]][license-url]
+[![GitHub Issues][issues-shield]][issues-url]
+
+</div>
+
+<div align="center">
+
 # AI-Stuff
 
-A collection of Claude Code plugins for AI-assisted workflows.
+**A Claude Code plugin marketplace by [tretuttle](https://github.com/tretuttle)**
 
-## Installation
+</div>
 
-Add this marketplace to Claude Code:
+---
+
+## Install
 
 ```
 /plugin marketplace add tretuttle/AI-Stuff
 ```
 
-Then install individual plugins:
+Then pick what you want:
 
 ```
 /plugin install persona@ai-stuff
@@ -18,59 +31,87 @@ Then install individual plugins:
 /plugin install browser-capture@ai-stuff
 ```
 
-## Available Plugins
+---
+
+## Plugins
 
 ### persona
 
-Multi-persona code review and interactive dev chat. 14 expert personas — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more — each applying their principles to your codebase, in your language, with your framework.
+> Multi-persona code review and interactive dev chat. 14 expert personas — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more — each applying their principles to YOUR codebase, in YOUR language, with YOUR framework.
 
-**Features:**
-- Parallel multi-persona code review with synthesis, deduplication, and confidence scoring
+- Parallel multi-persona review with synthesis, deduplication, and confidence scoring
 - Interactive persona chat — channel any developer's voice with full tool access
 - Guided workflow (`/persona:run`) plus power-user shortcuts (`/persona:review`, `/persona:call`)
-- Principle-based, stack-agnostic — personas apply transferable beliefs to any codebase
-- Always opinionated — full intensity by default, real catchphrases, authentic voice
-- Project memory — personas accumulate insights across sessions
+- Principle-based and stack-agnostic — personas apply transferable beliefs to any codebase
+- Always opinionated — full intensity, real catchphrases, authentic voice
 
 ```
 /plugin install persona@ai-stuff
 ```
 
-[View plugin details](./persona/README.md)
+[View details &#8594;](./persona/README.md)
+
+---
 
 ### omarchy-theme
 
-Create Omarchy desktop themes from wallpaper images with automated palette extraction.
+> Desktop theme generator for Omarchy. Pick a wallpaper, get a complete theme — palette, colors.toml, preview screenshot, GitHub repo — in one conversation.
 
-**Features:**
-- Extract color palettes from wallpaper images using hellwal
-- Recolor UI assets to match your wallpaper with tint
-- Generate complete theme packages for Omarchy desktop
-- Workshop-based workflow at `~/omarchy-theme-workshop/`
+- Wallpaper to theme in one command with guided checkpoints
+- Natural language — "Make me a dark theme from this forest wallpaper"
+- 22-slot colors.toml generation with live preview and testing
+- Safe by design — workshop directory, never touches system configs
+- One-click GitHub publishing with install URL
 
 ```
 /plugin install omarchy-theme@ai-stuff
 ```
 
-[View plugin details](./omarchy-theme/README.md)
+> [!NOTE]
+> Requires [Omarchy](https://github.com/nicholasgasior/omarchy) desktop environment.
+
+[View details &#8594;](./omarchy-theme/README.md)
+
+---
 
 ### browser-capture
 
-Complete browser resource capture using Playwright + Chrome DevTools Protocol. Archives every resource the browser receives during navigation into a domain-organized directory with full metadata.
+> Complete browser resource capture using Playwright + Chrome DevTools Protocol. The CLI equivalent of Chrome's "Save All Resources" — every resource the browser receives, organized by domain, with full metadata.
 
-**Features:**
-- Capture all network traffic (XHR, fetch, scripts, CSS, fonts, images, API responses)
-- Cached/static resources from the browser's resource tree
+- All network traffic — XHR, fetch, scripts, CSS, fonts, images, API responses
 - Full request/response metadata (headers, status codes, timing, cache status)
 - Domain-organized directory structure with actual files
-- Post-capture analysis agent for filtering and searching
+- Post-capture analysis agent for filtering, grepping, and searching results
+- Zero setup — dependencies install automatically
 
 ```
 /plugin install browser-capture@ai-stuff
 ```
 
-[View plugin details](./plugins/browser-capture/README.md)
+[View details &#8594;](./plugins/browser-capture/README.md)
+
+---
+
+<div align="center">
+
+<a href="https://claude.com/claude-code"><img src="assets/open-in-claude-code.svg" alt="Open in Claude Code" /></a>
+&nbsp;&nbsp;
+<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+&nbsp;&nbsp;
+<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
+
+</div>
+
+---
 
 ## License
 
 MIT
+
+<!-- LINKS -->
+[stars-shield]: https://img.shields.io/github/stars/tretuttle/AI-Stuff?style=social
+[stars-url]: https://github.com/tretuttle/AI-Stuff/stargazers
+[license-shield]: https://img.shields.io/badge/License-MIT-green.svg
+[license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
+[issues-shield]: https://img.shields.io/github/issues/tretuttle/AI-Stuff
+[issues-url]: https://github.com/tretuttle/AI-Stuff/issues
