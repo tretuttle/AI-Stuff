@@ -1,9 +1,9 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
-[![GitHub Stars][stars-shield]][stars-url]
-[![License: MIT][license-shield]][license-url]
-[![GitHub Issues][issues-shield]][issues-url]
+<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+&nbsp;&nbsp;
+<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
 
 </div>
 
@@ -91,18 +91,6 @@ Then pick what you want:
 ```
 
 [View details &#8594;](./plugins/browser-capture/README.md)
-
----
-
-<div align="center">
-
-<a href="https://claude.com/claude-code"><img src="assets/open-in-claude-code.svg" alt="Open in Claude Code" /></a>
-&nbsp;&nbsp;
-<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
-&nbsp;&nbsp;
-<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
-
-</div>
 
 ---
 

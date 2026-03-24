@@ -1,9 +1,9 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
-[![Claude Code Plugin][claude-shield]][claude-url]
-[![License: MIT][license-shield]][license-url]
-[![GitHub Stars][stars-shield]][stars-url]
+<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+&nbsp;&nbsp;
+<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
 
 </div>
 
