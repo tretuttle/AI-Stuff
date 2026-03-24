@@ -1,6 +1,6 @@
 {
   "name": "persona",
-  "version": "2.0.0",
+  "version": "1.0.8",
   "description": "Multi-persona code review orchestrator — get feedback from diverse expert perspectives",
   "author": {
     "name": "Trent Tuttle"
