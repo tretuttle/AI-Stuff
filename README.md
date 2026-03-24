@@ -1,9 +1,9 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
-<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" height="28" />
 &nbsp;&nbsp;
-<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
+<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" height="28" />
 
 </div>
 
@@ -98,10 +98,3 @@ Then pick what you want:
 
 MIT
 
-<!-- LINKS -->
-[stars-shield]: https://img.shields.io/github/stars/tretuttle/AI-Stuff?style=social
-[stars-url]: https://github.com/tretuttle/AI-Stuff/stargazers
-[license-shield]: https://img.shields.io/badge/License-MIT-green.svg
-[license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
-[issues-shield]: https://img.shields.io/github/issues/tretuttle/AI-Stuff
-[issues-url]: https://github.com/tretuttle/AI-Stuff/issues

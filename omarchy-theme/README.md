@@ -1,11 +1,8 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
-<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" height="28" />
 &nbsp;&nbsp;
-<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
-[![Claude Code Plugin][claude-shield]][claude-url]
-[![License: MIT][license-shield]][license-url]
-[![GitHub Stars][stars-shield]][stars-url]
+<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" height="28" />
 
 </div>
 
@@ -165,11 +162,11 @@ To skip confirmation prompts for theme commands, add to your project's `.claude/
 
 <div align="center">
 
-<a href="https://claude.com/claude-code"><img src="../assets/open-in-claude-code.svg" alt="Open in Claude Code" /></a>
+<a href="https://claude.com/claude-code"><img src="../assets/open-in-claude-code.svg" alt="Open in Claude Code" height="28" /></a>
 &nbsp;&nbsp;
-<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" />
+<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" height="28" />
 &nbsp;&nbsp;
-<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
+<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" height="28" />
 
 </div>
 
@@ -179,10 +176,3 @@ To skip confirmation prompts for theme commands, add to your project's `.claude/
 
 MIT
 
-<!-- LINKS -->
-[claude-shield]: https://img.shields.io/badge/Claude_Code-Plugin-blueviolet?logo=anthropic&logoColor=white
-[claude-url]: https://claude.com/claude-code
-[license-shield]: https://img.shields.io/badge/License-MIT-green.svg
-[license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
-[stars-shield]: https://img.shields.io/github/stars/tretuttle/AI-Stuff?style=social
-[stars-url]: https://github.com/tretuttle/AI-Stuff/stargazers

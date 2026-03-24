@@ -1,11 +1,8 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
-<img src="assets/works-on-my-machine.svg" alt="Works on My Machine" />
+<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" height="28" />
 &nbsp;&nbsp;
-<img src="assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
-[![Claude Code Plugin][claude-shield]][claude-url]
-[![License: MIT][license-shield]][license-url]
-[![GitHub Pull Requests][pr-shield]][pr-url]
+<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" height="28" />
 [![GitHub Issues][issues-shield]][issues-url]
 [![GitHub Stars][stars-shield]][stars-url]
 
@@ -310,11 +307,11 @@ Found a bug? Have a persona request? [Open an issue](https://github.com/tretuttl
 
 <div align="center">
 
-<a href="https://claude.com/claude-code"><img src="../assets/open-in-claude-code.svg" alt="Open in Claude Code" /></a>
+<a href="https://claude.com/claude-code"><img src="../assets/open-in-claude-code.svg" alt="Open in Claude Code" height="28" /></a>
 &nbsp;&nbsp;
-<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" />
+<img src="../assets/works-on-my-machine.svg" alt="Works on My Machine" height="28" />
 &nbsp;&nbsp;
-<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
+<img src="../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" height="28" />
 
 </div>
 
@@ -326,14 +323,3 @@ Found a bug? Have a persona request? [Open an issue](https://github.com/tretuttl
 
 </div>
 
-<!-- LINKS -->
-[claude-shield]: https://img.shields.io/badge/Claude_Code-Plugin-blueviolet?logo=anthropic&logoColor=white
-[claude-url]: https://claude.com/claude-code
-[license-shield]: https://img.shields.io/badge/License-MIT-green.svg
-[license-url]: https://github.com/tretuttle/AI-Stuff/blob/master/LICENSE
-[pr-shield]: https://img.shields.io/github/issues-pr/tretuttle/AI-Stuff
-[pr-url]: https://github.com/tretuttle/AI-Stuff/pulls
-[issues-shield]: https://img.shields.io/github/issues/tretuttle/AI-Stuff
-[issues-url]: https://github.com/tretuttle/AI-Stuff/issues
-[stars-shield]: https://img.shields.io/github/stars/tretuttle/AI-Stuff?style=social
-[stars-url]: https://github.com/tretuttle/AI-Stuff/stargazers
