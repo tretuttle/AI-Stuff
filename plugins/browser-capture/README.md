@@ -149,6 +149,20 @@ No manual dependency installation required.
 
 </details>
 
+---
+
+<div align="center">
+
+<a href="https://claude.com/claude-code"><img src="../../assets/open-in-claude-code.svg" alt="Open in Claude Code" /></a>
+&nbsp;&nbsp;
+<img src="../../assets/works-on-my-machine.svg" alt="Works on My Machine" />
+&nbsp;&nbsp;
+<img src="../../assets/designed-in-ms-paint.svg" alt="Designed in MS Paint" />
+
+</div>
+
+---
+
 ## License
 
 MIT
