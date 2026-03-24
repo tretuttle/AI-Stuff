@@ -1,6 +1,15 @@
 # Synthesis Engine
 
-After all personas complete their reviews, the synthesis engine merges their findings into a single report.
+After all personas complete their reviews, the orchestrator synthesizes their findings into a single unified report.
+
+## How It Works
+
+Each persona returns findings directly to the orchestrator (no intermediate files). The orchestrator then:
+
+1. **Deduplicates** — groups findings about the same issue in the same file
+2. **Boosts confidence** — when multiple personas agree, confidence goes up
+3. **Surfaces disagreements** — when personas conflict, both positions are shown
+4. **Filters by threshold** — hides low-confidence findings (critical findings are never hidden)
 
 ## Deduplication
 
@@ -10,7 +19,7 @@ When multiple personas flag the same issue in the same file, those findings are 
 - Unique recommendations from all personas are merged
 - Every persona is attributed: "Flagged by: ThePrimeagen (85), DHH (75)"
 - Highest severity from any persona wins
-- Each persona's original reasoning is preserved verbatim
+- Each persona's original reasoning is preserved verbatim — the distinct voices are the value
 
 ## Confidence Scoring
 
@@ -45,48 +54,9 @@ Disagreements appear in a dedicated section with both positions and reasoning. T
 /persona:review src/                       # Default: 30
 ```
 
-**Critical-severity findings are never filtered** regardless of confidence. A low-confidence critical finding still appears because even uncertain security vulnerabilities deserve attention.
+**Critical-severity findings are never filtered** regardless of confidence.
 
----
-
-## Output Format
-
-### Per-Persona JSON
-
-Each persona writes to `persona-reviews/{agent-name}.json`:
-
-```json
-{
-  "persona": "theprimeagen",
-  "displayName": "ThePrimeagen",
-  "gilfoyleMode": false,
-  "target": "src/auth.ts",
-  "findings": [
-    {
-      "severity": "critical",
-      "confidence": 85,
-      "file": "src/auth.ts",
-      "line": 42,
-      "issue": "Synchronous bcrypt call blocks the event loop",
-      "recommendation": "Use bcrypt.hash() async variant",
-      "reasoning": "This is a skill issue. You're blocking the entire event loop for password hashing."
-    }
-  ],
-  "summary": "1 critical, 1 warning, 1 suggestion"
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `severity` | string | `critical`, `warning`, or `suggestion` |
-| `confidence` | integer | 0-100 |
-| `file` | string | File path |
-| `line` | integer | Line number (optional) |
-| `issue` | string | What's wrong |
-| `recommendation` | string | What to do instead |
-| `reasoning` | string | Why it matters — in the persona's voice |
-
-### Severity Levels
+## Severity Levels
 
 | Level | Meaning |
 |-------|---------|
@@ -94,15 +64,15 @@ Each persona writes to `persona-reviews/{agent-name}.json`:
 | **warning** | Should fix. Code smells, maintainability concerns, potential issues. |
 | **suggestion** | Consider fixing. Style improvements, alternative approaches, nice-to-haves. |
 
-### Synthesized Review
+## Synthesized Output
 
-Saved to `persona-reviews/SYNTHESIS.md`:
+The final report is saved to `persona-reviews/SYNTHESIS.md`:
 
 ```markdown
 ## Persona Review Synthesis
 
 **5 personas reviewed `src/auth.ts`**
-**Summary: 2 critical, 4 warnings, 7 suggestions**
+**Summary: 2 critical, 4 warnings, 7 suggestions** (after deduplication)
 **Confidence threshold: 30**
 
 ### Critical (2)
