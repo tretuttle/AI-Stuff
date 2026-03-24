@@ -1,7 +1,7 @@
 ---
 name: review
 description: "Dispatch multi-persona code review against targeted files or changes"
-argument-hint: "[file/dir/glob] [--only name1,name2] [--gilfoyle] [--min-confidence N]"
+argument-hint: "[file/dir/glob] [--only name1,name2] [--min-confidence N]"
 ---
 
 # Multi-Persona Code Review

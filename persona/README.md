@@ -29,7 +29,7 @@
   </a>
 </p>
 
-**Multi-persona code review orchestrator for [Claude Code](https://claude.com/claude-code)**
+**Multi-persona code review and interactive dev chat for [Claude Code](https://claude.com/claude-code)**
 
 </div>
 
@@ -39,15 +39,16 @@
 
 A single reviewer catches what they know to look for. A performance engineer spots the blocking call but misses the accessibility gap. A testing advocate flags missing coverage but doesn't notice the bundle size doubled.
 
-Persona gives you multiple expert perspectives in one command — each with their own philosophy, priorities, and blind spots. When they agree, confidence goes up. When they disagree, you see both sides. No duplicate noise.
+Persona gives you multiple expert perspectives in one command — each applying their principles to YOUR codebase, in YOUR language, with YOUR framework. They don't tell you to switch stacks. They tell you what's wrong with how you're using the one you chose.
 
 ## Features
 
-- **Multiple expert perspectives** — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more review your code simultaneously, each through their unique lens
-- **Unified findings** — Duplicates are merged, agreement boosts confidence, disagreements are surfaced with both positions
-- **Confidence scoring** — Every finding carries a 0-100 score so you can filter noise with `--min-confidence`
-- **Always opinionated** — Personas are at full intensity by default. No diplomatic mode. That's the point.
-- **Interactive persona mode** — `/persona:call` lets you pair-program or discuss architecture as any persona
+- **Multiple expert perspectives** — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more review your code simultaneously, each through their unique philosophical lens
+- **Principle-based, not stack-specific** — Personas apply transferable beliefs (simplicity, performance, composition, testing) to whatever codebase they're invoked in
+- **Unified findings** — Duplicates merged, agreement boosts confidence, disagreements surfaced with both positions
+- **Always opinionated** — Full intensity by default. These are the most polarizing developers on the internet, stereotyped on purpose. That's the product.
+- **Interactive persona chat** — Channel any persona for pair programming, architecture discussions, or code walkthroughs with full tool access
+- **Guided workflow** — `/persona:run` walks you through everything. Power users can go direct.
 - **Extensible** — Drop a new `.md` file in `agents/` and it's automatically available
 - **Project memory** — Personas accumulate project-specific insights across sessions
 
@@ -66,31 +67,35 @@ Persona gives you multiple expert perspectives in one command — each with thei
 /plugin install persona@ai-stuff
 ```
 
-### First Review
+### Your First Time
 
-```bash
-/persona:review src/auth.ts
+```
+/persona:run
 ```
 
-You'll see which personas are running, progress as each finishes, and a synthesized review grouped by severity.
+The guided workflow walks you through your options: review code, chat as a persona, or browse who's available. It remembers your preferences.
+
+### Quick Start (if you already know what you want)
+
+```bash
+/persona:review src/auth.ts              # Review a file with all personas
+/persona:review --only theprimeagen,dhh  # Just these two
+/persona:call theprimeagen               # Chat as ThePrimeagen
+```
 
 ---
 
 ## Demo
 
+### Multi-Persona Review
+
 ```
-/persona:review src/auth.ts
+/persona:run review src/auth.ts
 ```
 
 ```
 Personas: ThePrimeagen, DHH, Chris Coyier, Dan Abramov, Evan You, ...
 Target: src/auth.ts
-
-[persona] Starting review: theprimeagen
-[persona] Starting review: dhh
-[persona] Finished review: theprimeagen
-[persona] Finished review: dhh
-...
 
 ## Persona Review Synthesis
 
@@ -116,7 +121,7 @@ Target: src/auth.ts
 - **DHH** (suggestion, 65): "Sessions with httpOnly cookies. JWT is almost always wrong."
 ```
 
-### Interactive Persona Mode
+### Interactive Persona Chat
 
 ```
 /persona:call theprimeagen
@@ -130,41 +135,44 @@ You: Look at src/utils/cache.ts — is this cache implementation good?
 > removes them. This is a memory leak wearing a trench coat. Use an LRU cache.
 > WeakMap if the keys are objects. Or just use Redis like a normal person.
 
-/persona:call --reset
+/persona:run --reset
 > Back to default Claude.
 ```
 
 ---
 
-## Usage
+## Commands
+
+### /persona:run
+
+The main entry point. Guided when called without arguments, direct when called with them.
+
+```
+/persona:run                           # Guided — walks you through it
+/persona:run review src/auth.ts        # Direct — review a file
+/persona:run theprimeagen              # Direct — chat as a persona
+/persona:run --reset                   # Reset persona chat mode
+```
 
 ### /persona:review
+
+Power-user shortcut. Goes straight to multi-persona review.
 
 ```
 /persona:review [target] [--only name1,name2] [--min-confidence N]
 ```
 
-| Argument / Flag | Description |
-|-----------------|-------------|
-| `[target]` | File path, directory, or glob. Defaults to staged changes. |
-| `--only name1,name2` | Run only specified personas. |
-| `--min-confidence N` | Hide findings below this score (default: 30). Critical findings are never hidden. |
-
-**Examples:**
-
-| Command | What it does |
-|---------|-------------|
-| `/persona:review src/auth.ts` | All personas review a file |
-| `/persona:review` | All personas review staged changes |
-| `/persona:review --only "Rich Harris"` | Single persona |
-| `/persona:review src/api/ --only theprimeagen,dhh` | Two personas |
-| `/persona:review src/auth.ts --min-confidence 60` | High-confidence only |
+| Flag | Description |
+|------|-------------|
+| `[target]` | File, directory, or glob. Defaults to staged changes. |
+| `--only` | Only dispatch these personas. |
+| `--min-confidence N` | Hide findings below this score (default: 30). Critical findings always shown. |
 
 ### /persona:call
 
-Adopt a persona's voice for interactive conversation — with full tool access (read, write, edit, run commands).
+Power-user shortcut. Goes straight to interactive persona chat.
 
-```bash
+```
 /persona:call theprimeagen       # Channel ThePrimeagen
 /persona:call "Rich Harris"      # Display names work too
 /persona:call --reset            # Return to default Claude
@@ -174,7 +182,9 @@ Adopt a persona's voice for interactive conversation — with full tool access (
 
 ## The Personas
 
-Personas are inspired by these developers' public writing, talks, and recurring opinions.
+Each persona applies their principles to whatever codebase you're working in. They don't recommend switching your stack — they tell you what's wrong with how you're using it, through the lens of what they believe about software.
+
+Inspired by these developers' public writing, talks, and recurring opinions.
 
 | Persona | Focus | Philosophy |
 |---------|-------|------------|
@@ -193,44 +203,41 @@ Personas are inspired by these developers' public writing, talks, and recurring 
 | **Theo Browne** | Type safety, shipping speed, pragmatism | Ship it, then iterate |
 | **Wes Bos** | Readability, naming, platform features | A beginner should be able to read this |
 
-[Full persona profiles &#8594;](docs/PERSONAS.md) &#124; [Create your own &#8594;](docs/CUSTOM-PERSONAS.md)
+[Create your own &#8594;](docs/CUSTOM-PERSONAS.md)
 
 ---
 
 ## Limitations
 
-- **Token cost scales with persona count.** Each persona is a separate subagent with its own context. Use `--only` to control costs.
-- **Requires Claude Code** with plugin marketplace support. This is not a standalone tool.
-- **Memory accumulates over time.** Persona memory files in `.claude/agent-memory/` may need occasional cleanup.
-- **Personas are read-only in review mode.** They cannot modify your code. `/persona:call` gives full tool access.
+- **Token cost scales with persona count.** Each persona is a separate subagent. Use `--only` to control costs.
+- **Requires Claude Code** with plugin marketplace support. Not a standalone tool.
+- **Memory accumulates.** Persona memory in `.claude/agent-memory/` may need occasional cleanup.
+- **Personas are read-only in review mode.** `/persona:call` gives full tool access.
+- **Works with any language and framework.** Personas apply principles universally — they're not JavaScript-specific.
 
 ---
 
 ## FAQ
 
 **How many personas can I run at once?**
-All of them. Use `--only` to narrow down for faster results or focused feedback.
+All of them. Use `--only` to narrow down.
 
-**Does this cost more than a regular Claude Code session?**
+**Does this cost more?**
 Yes. Each persona is a separate subagent. Use `--only` to control costs.
 
 **Can personas modify my code?**
-In `/persona:review`, no — Write and Edit are disallowed. In `/persona:call`, yes.
+In review mode, no. In chat mode (`/persona:call`), yes.
 
-**Can I use this with languages other than JavaScript/TypeScript?**
-Yes. The personas' philosophical lenses apply universally.
+**Works with Python / Go / Rust / etc?**
+Yes. The personas' principles apply to any language and framework.
 
-**How does memory work across projects?**
-`project` scope — each project gets its own memory per persona.
-
-**What's the difference between /persona:review and /persona:call?**
-Review dispatches read-only subagents that return structured findings. `/persona:call` makes Claude adopt a persona's voice with full capabilities.
+**What's the difference between review and call?**
+Review dispatches read-only subagents that return structured findings. Call makes Claude adopt a persona's voice with full capabilities for interactive conversation.
 
 ---
 
 ## Reference
 
-- [Full persona profiles](docs/PERSONAS.md)
 - [Synthesis engine and output format](docs/SYNTHESIS.md)
 - [Custom persona creation guide](docs/CUSTOM-PERSONAS.md)
 - [Architecture and plugin structure](docs/ARCHITECTURE.md)
@@ -239,9 +246,8 @@ Review dispatches read-only subagents that return structured findings. `/persona
 
 ## Acknowledgments
 
-- [Claude Code](https://claude.com/claude-code) by Anthropic — the plugin platform that makes this possible
+- [Claude Code](https://claude.com/claude-code) by Anthropic — the plugin platform
 - [ThePrimeagen](https://www.youtube.com/@ThePrimeagen), [DHH](https://dhh.dk/), [Rich Harris](https://github.com/Rich-Harris), [Dan Abramov](https://github.com/gaearon), [Evan You](https://github.com/yyx990803), [Kent C. Dodds](https://kentcdodds.com/), [Lee Robinson](https://leerob.io/), [Matt Mullenweg](https://ma.tt/), [Matt Pocock](https://www.mattpocock.com/), [Chris Coyier](https://chriscoyier.net/), [Scott Tolinski](https://scotttolinski.com/), [Tanner Linsley](https://tanstack.com/), [Theo Browne](https://t3.gg/), [Wes Bos](https://wesbos.com/) — the developers whose philosophies inspire these personas
-- [Silicon Valley](https://en.wikipedia.org/wiki/Silicon_Valley_(TV_series)) — for Gilfoyle
 
 *Persona is a fan project. The personas are inspired by these developers' public teachings, talks, and writing. It is not endorsed by or affiliated with any of the individuals named above.*
 
