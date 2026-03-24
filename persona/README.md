@@ -46,8 +46,8 @@ Persona gives you multiple expert perspectives in one command — each with thei
 - **Multiple expert perspectives** — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more review your code simultaneously, each through their unique lens
 - **Unified findings** — Duplicates are merged, agreement boosts confidence, disagreements are surfaced with both positions
 - **Confidence scoring** — Every finding carries a 0-100 score so you can filter noise with `--min-confidence`
-- **Gilfoyle mode** — Maximum intensity reviews with all diplomacy dropped
-- **Interactive persona mode** — `/persona:become` lets you pair-program or discuss architecture as any persona
+- **Always opinionated** — Personas are at full intensity by default. No diplomatic mode. That's the point.
+- **Interactive persona mode** — `/persona:call` lets you pair-program or discuss architecture as any persona
 - **Extensible** — Drop a new `.md` file in `agents/` and it's automatically available
 - **Project memory** — Personas accumulate project-specific insights across sessions
 
@@ -119,7 +119,7 @@ Target: src/auth.ts
 ### Interactive Persona Mode
 
 ```
-/persona:become theprimeagen
+/persona:call theprimeagen
 
 > ThePrimeagen here. Show me the code. Let's see how fast this thing actually is.
 
@@ -130,7 +130,7 @@ You: Look at src/utils/cache.ts — is this cache implementation good?
 > removes them. This is a memory leak wearing a trench coat. Use an LRU cache.
 > WeakMap if the keys are objects. Or just use Redis like a normal person.
 
-/persona:become --reset
+/persona:call --reset
 > Back to default Claude.
 ```
 
@@ -141,14 +141,13 @@ You: Look at src/utils/cache.ts — is this cache implementation good?
 ### /persona:review
 
 ```
-/persona:review [target] [--only name1,name2] [--gilfoyle] [--min-confidence N]
+/persona:review [target] [--only name1,name2] [--min-confidence N]
 ```
 
 | Argument / Flag | Description |
 |-----------------|-------------|
 | `[target]` | File path, directory, or glob. Defaults to staged changes. |
 | `--only name1,name2` | Run only specified personas. |
-| `--gilfoyle` | Maximum intensity mode. |
 | `--min-confidence N` | Hide findings below this score (default: 30). Critical findings are never hidden. |
 
 **Examples:**
@@ -158,26 +157,17 @@ You: Look at src/utils/cache.ts — is this cache implementation good?
 | `/persona:review src/auth.ts` | All personas review a file |
 | `/persona:review` | All personas review staged changes |
 | `/persona:review --only "Rich Harris"` | Single persona |
-| `/persona:review src/api/ --only theprimeagen,dhh --gilfoyle` | Two personas, max intensity |
+| `/persona:review src/api/ --only theprimeagen,dhh` | Two personas |
 | `/persona:review src/auth.ts --min-confidence 60` | High-confidence only |
 
-### /persona:parse-output
-
-Re-run synthesis on existing persona review JSON without dispatching personas again. Useful for adjusting confidence thresholds after a review.
-
-```bash
-/persona:parse-output                      # Re-synthesize with defaults
-/persona:parse-output --min-confidence 70  # Only high-confidence
-```
-
-### /persona:become
+### /persona:call
 
 Adopt a persona's voice for interactive conversation — with full tool access (read, write, edit, run commands).
 
 ```bash
-/persona:become theprimeagen       # Channel ThePrimeagen
-/persona:become "Rich Harris"      # Display names work too
-/persona:become --reset            # Return to default Claude
+/persona:call theprimeagen       # Channel ThePrimeagen
+/persona:call "Rich Harris"      # Display names work too
+/persona:call --reset            # Return to default Claude
 ```
 
 ---
@@ -188,20 +178,20 @@ Personas are inspired by these developers' public writing, talks, and recurring 
 
 | Persona | Focus | Philosophy |
 |---------|-------|------------|
-| **[ThePrimeagen](docs/PERSONAS.md#theprimeagen)** | Performance, allocations, framework overhead | "blazingly fast" — everything should be zero-cost |
-| **[DHH](docs/PERSONAS.md#dhh)** | Over-engineering, complexity, dependency bloat | The Majestic Monolith — ship products, not abstractions |
-| **[Chris Coyier](docs/PERSONAS.md#chris-coyier)** | CSS, semantic HTML, web standards | The platform can do that |
-| **[Dan Abramov](docs/PERSONAS.md#dan-abramov)** | Component design, composition, mental models | Understand *why* before *how* |
-| **[Evan You](docs/PERSONAS.md#evan-you)** | API ergonomics, DX, reactivity | Progressive disclosure of complexity |
-| **[Kent C. Dodds](docs/PERSONAS.md#kent-c-dodds)** | Testing, accessibility, user-centric queries | Test the way users use it |
-| **[Lee Robinson](docs/PERSONAS.md#lee-robinson)** | Server components, Core Web Vitals, metadata | That should be a Server Component |
-| **[Matt Mullenweg](docs/PERSONAS.md#matt-mullenweg)** | Backward compat, a11y, i18n, open source | Decisions, not options |
-| **[Matt Pocock](docs/PERSONAS.md#matt-pocock)** | Type safety, generics, inference | There's a type for that |
-| **[Rich Harris](docs/PERSONAS.md#rich-harris)** | Compiler optimization, bundle size, reactivity | The best framework code is no framework code |
-| **[Scott Tolinski](docs/PERSONAS.md#scott-tolinski)** | Modern CSS, simplicity, practical solutions | You don't need a library for this |
-| **[Tanner Linsley](docs/PERSONAS.md#tanner-linsley)** | State management, caching, headless patterns | Separate server state from client state |
-| **[Theo Browne](docs/PERSONAS.md#theo-browne)** | End-to-end type safety, tRPC, validation | Type-safe from database to browser |
-| **[Wes Bos](docs/PERSONAS.md#wes-bos)** | Readability, naming, practical JS | A beginner should be able to read this |
+| **ThePrimeagen** | Performance, allocations, fundamentals | Know what the machine is actually doing |
+| **DHH** | Over-engineering, complexity, simplicity | You don't need that |
+| **Chris Coyier** | Platform capabilities, semantic HTML, craft | The platform can do that |
+| **Dan Abramov** | Mental models, composition, side effects | Understand the problem before the solution |
+| **Evan You** | API design, reactivity, tooling ergonomics | It should just work |
+| **Kent C. Dodds** | Testing, accessibility, web standards | Test behavior, not implementation |
+| **Lee Robinson** | DX-to-UX pipeline, server-first, performance | The framework should disappear |
+| **Matt Mullenweg** | Open source, backward compat, user freedom | Decisions, not options |
+| **Matt Pocock** | Type safety, generics, developer experience | Types are developer experience |
+| **Rich Harris** | Build-time optimization, less code, HTML-first | Do work at build time, not runtime |
+| **Scott Tolinski** | CSS mastery, less boilerplate, shipping | Less ceremony, more building |
+| **Tanner Linsley** | Caching, headless UI, type inference | Server state is not client state |
+| **Theo Browne** | Type safety, shipping speed, pragmatism | Ship it, then iterate |
+| **Wes Bos** | Readability, naming, platform features | A beginner should be able to read this |
 
 [Full persona profiles &#8594;](docs/PERSONAS.md) &#124; [Create your own &#8594;](docs/CUSTOM-PERSONAS.md)
 
@@ -212,7 +202,7 @@ Personas are inspired by these developers' public writing, talks, and recurring 
 - **Token cost scales with persona count.** Each persona is a separate subagent with its own context. Use `--only` to control costs.
 - **Requires Claude Code** with plugin marketplace support. This is not a standalone tool.
 - **Memory accumulates over time.** Persona memory files in `.claude/agent-memory/` may need occasional cleanup.
-- **Personas are read-only in review mode.** They cannot modify your code. `/persona:become` gives full tool access.
+- **Personas are read-only in review mode.** They cannot modify your code. `/persona:call` gives full tool access.
 
 ---
 
@@ -225,7 +215,7 @@ All of them. Use `--only` to narrow down for faster results or focused feedback.
 Yes. Each persona is a separate subagent. Use `--only` to control costs.
 
 **Can personas modify my code?**
-In `/persona:review`, no — Write and Edit are disallowed. In `/persona:become`, yes.
+In `/persona:review`, no — Write and Edit are disallowed. In `/persona:call`, yes.
 
 **Can I use this with languages other than JavaScript/TypeScript?**
 Yes. The personas' philosophical lenses apply universally.
@@ -233,8 +223,8 @@ Yes. The personas' philosophical lenses apply universally.
 **How does memory work across projects?**
 `project` scope — each project gets its own memory per persona.
 
-**What's the difference between /persona:review and /persona:become?**
-Review dispatches read-only subagents that return structured findings. Become makes Claude adopt a persona's voice with full capabilities.
+**What's the difference between /persona:review and /persona:call?**
+Review dispatches read-only subagents that return structured findings. `/persona:call` makes Claude adopt a persona's voice with full capabilities.
 
 ---
 

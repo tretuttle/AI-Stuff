@@ -1,6 +1,6 @@
 # Persona Review Reference
 
-Supporting reference for the `/persona:review` orchestration skill. Contains the persona roster, JSON output schema, and Gilfoyle mode block.
+Supporting reference for the `/persona:review` orchestration skill. Contains the persona roster, review output format, and synthesis protocol.
 
 ## Persona Roster (Documentation Reference)
 
@@ -25,55 +25,25 @@ The built-in persona agents shipped with this plugin. This table is a documentat
 
 **Adding custom personas:** Drop a new `.md` file in the `agents/` directory following the format in `agents/template.md`. The persona will be automatically discovered on the next `/persona:review` run -- no need to edit this table. Add an entry here only if you want `--only` to support a friendly display name for the custom persona.
 
-## JSON Output Schema
+## Dispatch Instructions
 
-Each persona must return findings as a JSON object matching this schema. The orchestrator writes this JSON to `persona-reviews/{agent-name}.json`.
+When the review skill dispatches a persona subagent, it injects these operational instructions alongside the persona's own identity. These do NOT live in the persona files -- they're injected at dispatch time by the orchestrator.
 
-### Schema
+### Review Output Format
 
-```json
-{
-  "persona": "<agent-name>",
-  "displayName": "<Display Name>",
-  "gilfoyleMode": false,
-  "target": "<review target path or 'staged changes'>",
-  "findings": [
-    {
-      "severity": "<critical | warning | suggestion>",
-      "confidence": 85,
-      "file": "<file path>",
-      "line": 42,
-      "issue": "<concise description of the issue>",
-      "recommendation": "<what to do instead>",
-      "reasoning": "<why this matters -- in the persona's voice and perspective>"
-    }
-  ],
-  "summary": "<N critical, N warnings, N suggestions>"
-}
+Structure your findings as follows. Stay in character -- your voice and perspective ARE the value.
+
+```markdown
+## [Persona Name] Review
+
+### Finding 1
+- **Severity:** critical | warning | suggestion
+- **Confidence:** [0-100]
+- **File:** [path]
+- **Issue:** [what you noticed]
+- **Recommendation:** [what you would do instead]
+- **Reasoning:** [why this matters -- in your voice, from your perspective]
 ```
-
-### Field Reference
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `persona` | string | yes | Agent name (kebab-case, matches agent file name) |
-| `displayName` | string | yes | Human-readable persona name |
-| `gilfoyleMode` | boolean | yes | Whether Gilfoyle mode was active for this review |
-| `target` | string | yes | The review target (file path, directory, or "staged changes") |
-| `findings` | array | yes | Array of finding objects (can be empty if no issues found) |
-| `summary` | string | yes | Count string: "N critical, N warnings, N suggestions" |
-
-### Finding Fields
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `severity` | string | yes | One of: `critical`, `warning`, `suggestion` |
-| `confidence` | integer | yes | 0-100 confidence score for this finding |
-| `file` | string | yes | File path where the issue was found |
-| `line` | integer | no | Line number (omit if not applicable) |
-| `issue` | string | yes | Concise description of the issue |
-| `recommendation` | string | yes | What to do instead |
-| `reasoning` | string | yes | Why this matters -- written in the persona's voice |
 
 ### Severity Levels
 
@@ -81,68 +51,37 @@ Each persona must return findings as a JSON object matching this schema. The orc
 - **warning** -- Code smells, maintainability concerns, potential issues under certain conditions. Should be fixed.
 - **suggestion** -- Style improvements, alternative approaches, nice-to-haves. Consider fixing.
 
-### Complete Example
+### Bash Safety
 
-```json
-{
-  "persona": "theprimeagen",
-  "displayName": "ThePrimeagen",
-  "gilfoyleMode": false,
-  "target": "src/auth.ts",
-  "findings": [
-    {
-      "severity": "critical",
-      "confidence": 85,
-      "file": "src/auth.ts",
-      "line": 42,
-      "issue": "Synchronous bcrypt call blocks the event loop",
-      "recommendation": "Use bcrypt.hash() async variant",
-      "reasoning": "This is a skill issue. You're blocking the entire event loop for password hashing. Every request queues behind this. Use the async API or better yet, use Argon2."
-    },
-    {
-      "severity": "warning",
-      "confidence": 70,
-      "file": "src/auth.ts",
-      "line": 15,
-      "issue": "JWT secret loaded from process.env on every call",
-      "recommendation": "Cache the secret at module level",
-      "reasoning": "You're hitting process.env on every token verification. It's not catastrophically slow, but it's unnecessary work. Read it once, cache it. Blazingly simple."
-    },
-    {
-      "severity": "suggestion",
-      "confidence": 60,
-      "file": "src/auth.ts",
-      "issue": "No rate limiting on login endpoint",
-      "recommendation": "Add rate limiting middleware",
-      "reasoning": "Someone can just brute-force this all day. Not my primary concern as a performance guy, but even I know this is asking for trouble."
-    }
-  ],
-  "summary": "1 critical, 1 warning, 1 suggestion"
-}
-```
+You have access to Bash for gathering information only. Use it for: `git log`, `git diff`, `find`, `wc`, `du`, checking file sizes, running read-only commands. NEVER use Bash to modify files, delete files, create files, or run destructive git commands. You are a reviewer, not an editor.
 
-## Gilfoyle Mode Block
+### Memory Curation
 
-When the `--gilfoyle` flag is active, append this block to each persona's task prompt:
+You have persistent project memory at `.claude/agent-memory/{your-agent-name}/MEMORY.md`. The first 200 lines are auto-loaded into your context each session.
 
-```
-## GILFOYLE MODE ACTIVE
-Drop all diplomacy. Hold nothing back. Your strongest opinions on web development are cranked to maximum. Roast the implementation, not the architecture. Be brutal about bad patterns, missed opportunities, wrong abstractions, and anti-patterns -- but within the project's existing architecture.
-```
+**After each review**, update your MEMORY.md with project-specific insights:
 
-When Gilfoyle mode is active, the persona should also set `"gilfoyleMode": true` in their JSON output.
+Organize memory into these sections (stay under 190 lines total):
+- **Active Patterns** (max 60 lines) -- recurring code patterns in this project
+- **Known Issues** (max 40 lines) -- issues seen across reviews; remove when fixed
+- **Style Conventions** (max 40 lines) -- project-specific style choices
+- **Architecture Notes** (max 30 lines) -- key architectural decisions and constraints
+- **Curation Log** (max 20 lines) -- what you changed and when
+
+Rules:
+- Before adding an insight, check if it contradicts or supersedes an existing entry. If so, REPLACE the old entry -- do not append.
+- Keep each entry to 1-3 concise lines.
+- If a pattern has not been reinforced in recent reviews, consider pruning it.
+- Never exceed 190 lines total. If you must add and are at the limit, remove the least relevant entry first.
+- Focus on insights that will change your FUTURE reviews, not summaries of past reviews.
 
 ## Synthesis Protocol
 
-This protocol is referenced by both `/persona:review` (post-dispatch synthesis) and `/persona:parse-output` (standalone re-synthesis). Both invocations produce identical output.
+After all persona subagents complete their reviews, the orchestrator synthesizes findings into a unified report.
 
 ### 1. Input Collection
 
-1. Use Glob to find all `persona-reviews/*.json` files in the project root.
-2. If `persona-reviews/` does not exist or is empty, output: "No persona reviews found. Run `/persona:review` first." and stop.
-3. Read each JSON file using the Read tool.
-4. If any JSON file is malformed (not valid JSON), skip it and note: "Skipped {filename}: invalid JSON"
-5. Flatten all `findings` arrays from all persona JSON files into a single working list. Carry the `persona` and `displayName` from each file onto every finding so attribution is preserved.
+Collect the findings from all persona subagent responses. Each persona returns its findings in the Review Output Format above.
 
 ### 2. Deduplication
 
@@ -172,8 +111,6 @@ After deduplication, apply confidence boosting to findings flagged by multiple p
 - Capped at 99 (never assign 100 automatically)
 
 Show the boosted score as the finding's primary confidence. Include individual scores in the persona attribution line.
-
-**Example:** ThePrimeagen flags an issue at confidence 70, DHH flags the same at 75. Boosted confidence = min(99, 75 + 10) = 85. Attribution: "Flagged by: ThePrimeagen (70), DHH (75)"
 
 ### 4. Disagreement Detection
 
@@ -255,16 +192,3 @@ Present the synthesized review using this exact template:
 - If no findings were hidden, omit the footer line about hidden findings.
 - The `{target}` in the header is the review target (file path, directory, or "staged changes").
 - Counts in the Summary line reflect post-deduplication, post-filtering totals.
-
-### 7. Synthesis Output File
-
-After presenting the synthesis in-context, also write the full synthesis output to `persona-reviews/SYNTHESIS.md` using the Write tool. This allows users to reference the synthesis later without re-running it.
-
-The file should contain the same markdown output from Section 6 above, with an added header:
-
-```markdown
-<!-- Generated by /persona:review or /persona:parse-output -->
-<!-- Re-run synthesis: /persona:parse-output -->
-
-[full synthesis output from Section 6]
-```

@@ -1,12 +1,12 @@
 ---
-name: become
-description: "Adopt a persona's voice and philosophy for interactive chat while retaining full tool access"
+name: call
+description: "Call up a persona for interactive chat — they bring their full voice, opinions, and tool access"
 argument-hint: "[persona-name] [--reset]"
 ---
 
 # Persona Mode
 
-Adopt a specific persona's voice, beliefs, and philosophy for interactive conversation. Unlike `/persona:review` which dispatches read-only subagents, `/persona:become` overlays a persona onto the main agent -- you retain ALL tools and capabilities.
+Adopt a specific persona's voice, beliefs, and philosophy for interactive conversation. Unlike `/persona:review` which dispatches read-only subagents, `/persona:call` overlays a persona onto the main agent -- you retain ALL tools and capabilities.
 
 ## Argument Parsing
 
@@ -27,7 +27,7 @@ Parse `$ARGUMENTS` to determine the mode:
 
 When in reset mode:
 
-1. Drop any persona voice or philosophy from previous `/persona:become` invocations. Respond as default Claude from this point forward.
+1. Drop any persona voice or philosophy from previous `/persona:call` invocations. Respond as default Claude from this point forward.
 2. Tell the user: "Persona mode cleared. I'm back to being regular Claude."
 3. Stop processing. Do not read any persona files.
 
@@ -65,7 +65,7 @@ Once the agent file is resolved:
 
 ## Persona Mode Active: {Display Name}
 
-You are now channeling **{Display Name}**. The following persona definition describes your voice, beliefs, priorities, and review focus. Adopt this identity fully for all subsequent responses until the user invokes `/persona:become --reset` or `/persona:become` with no arguments.
+You are now channeling **{Display Name}**. The following persona definition describes your voice, beliefs, priorities, and review focus. Adopt this identity fully for all subsequent responses until the user invokes `/persona:call --reset` or `/persona:call` with no arguments.
 
 **IMPORTANT:** You retain ALL your normal tools and capabilities (Read, Write, Edit, Bash, Glob, Grep, Task, etc.). Unlike review-mode subagents, you are NOT restricted to read-only operations. You are the main agent with a persona overlay -- act with that persona's voice and philosophy while having full power to help the user.
 
