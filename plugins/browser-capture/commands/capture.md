@@ -8,10 +8,15 @@ Run the Playwright+CDP capture engine against the specified URLs.
 
 ## Usage
 
-The engine requires dependencies installed in `${CLAUDE_PLUGIN_DATA}`. Set NODE_PATH as a safety net (capture.js also self-resolves at startup):
+The engine is built on first use via the skill preamble. Use the bundled version when available, with the source script as fallback:
 
 ```bash
-NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scripts/capture.js" \
+_CAPTURE="${CLAUDE_PLUGIN_DATA}/dist/capture.js"
+[ ! -f "$_CAPTURE" ] && _CAPTURE="${CLAUDE_PLUGIN_ROOT}/scripts/capture.js"
+NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" \
+PLAYWRIGHT_BROWSERS_PATH="${CLAUDE_PLUGIN_DATA}" \
+CLAUDE_PLUGIN_DATA="${CLAUDE_PLUGIN_DATA}" \
+node "$_CAPTURE" \
   --urls $ARGUMENTS \
   --output ./browser-capture-output
 ```

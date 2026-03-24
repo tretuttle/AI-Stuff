@@ -1,0 +1,116 @@
+name: browser-capture tests
+
+on:
+  push:
+    paths:
+      - 'plugins/browser-capture/**'
+  pull_request:
+    paths:
+      - 'plugins/browser-capture/**'
+
+jobs:
+  syntax-check:
+    name: Syntax validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JS syntax
+        run: |
+          for f in plugins/browser-capture/scripts/*.js; do
+            echo "Checking $f..."
+            node --check "$f"
+          done
+
+      - name: Validate JSON files
+        run: |
+          for f in plugins/browser-capture/hooks/hooks.json plugins/browser-capture/.claude-plugin/plugin.json plugins/browser-capture/scripts/package.json; do
+            echo "Checking $f..."
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf-8'))"
+          done
+
+  unit-tests:
+    name: Unit tests (bats)
+    runs-on: ubuntu-latest
+    needs: syntax-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install bats
+        run: npm install -g bats
+
+      - name: Run unit tests
+        run: |
+          bats plugins/browser-capture/tests/health-check.bats \
+               plugins/browser-capture/tests/update-check.bats \
+               plugins/browser-capture/tests/sanitize-output.bats \
+               plugins/browser-capture/tests/capture-cli.bats
+
+  e2e-tests:
+    name: E2E tests (playwright)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install bats
+        run: npm install -g bats
+
+      - name: Install plugin dependencies
+        working-directory: plugins/browser-capture
+        run: |
+          cd scripts
+          npm install --production
+          npx playwright install chromium
+          npx playwright install-deps chromium
+
+      - name: Run e2e tests
+        env:
+          NODE_PATH: ${{ github.workspace }}/plugins/browser-capture/scripts/node_modules
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/plugins/browser-capture/scripts
+        run: |
+          bats plugins/browser-capture/tests/e2e-capture.bats
+
+  build-test:
+    name: Build bundle test
+    runs-on: ubuntu-latest
+    needs: syntax-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: plugins/browser-capture/scripts
+        run: npm install --production
+
+      - name: Install esbuild
+        working-directory: plugins/browser-capture/scripts
+        run: npm install esbuild
+
+      - name: Test esbuild bundle
+        working-directory: plugins/browser-capture
+        env:
+          CLAUDE_PLUGIN_ROOT: ${{ github.workspace }}/plugins/browser-capture
+          CLAUDE_PLUGIN_DATA: ${{ github.workspace }}/plugins/browser-capture/scripts
+        run: |
+          node scripts/build.js
+          # Verify bundle was created
+          test -f scripts/dist/capture.js
+          # Verify bundle has content
+          test "$(wc -c < scripts/dist/capture.js)" -gt 1000
+          echo "Bundle built successfully: $(wc -c < scripts/dist/capture.js) bytes"

@@ -16,6 +16,31 @@ description: >
 
 You have access to a Playwright+CDP browser capture engine that archives every resource the browser receives during navigation. This is the CLI equivalent of Chrome's "Save All Resources" DevTools extension.
 
+## Preamble (run ONCE when skill is invoked)
+
+```bash
+_UPDATE=$(node "${CLAUDE_PLUGIN_ROOT}/scripts/update-check.js" 2>/dev/null || true)
+[ -n "$_UPDATE" ] && echo "$_UPDATE" || true
+```
+
+If output shows `UPDATE_AVAILABLE <old> <new>`: tell the user "browser-capture **v{new}** is available (you're on v{old}). Run `/plugin update browser-capture` to upgrade." Then continue with the capture — don't block on updates.
+
+If no output: you're up to date.
+
+## Setup (run ONCE before first capture)
+
+Check if the capture engine is built. If not, build it:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/build.js" 2>&1
+```
+
+If output ends with "Ready to capture" or "Engine up to date": proceed.
+
+If build fails: tell the user what went wrong and suggest running `/browser-capture:health` to diagnose.
+
+**This only runs once per session.** After the engine is built, all subsequent captures use the existing bundle.
+
 ## When to use this
 
 The user wants to capture/record/archive what a browser loads. They care about:
@@ -33,10 +58,21 @@ They do NOT care about:
 
 ## How to use it
 
-Run the capture engine:
+Run the capture engine. The bundled script self-resolves all paths:
 
 ```bash
-NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scripts/capture.js" \
+NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" \
+PLAYWRIGHT_BROWSERS_PATH="${CLAUDE_PLUGIN_DATA}" \
+node "${CLAUDE_PLUGIN_DATA}/dist/capture.js" \
+  --urls <url1> <url2> ... \
+  --output ./browser-capture-output
+```
+
+If the bundle doesn't exist yet, fall back to the source script:
+
+```bash
+CLAUDE_PLUGIN_DATA="${CLAUDE_PLUGIN_DATA}" \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/capture.js" \
   --urls <url1> <url2> ... \
   --output ./browser-capture-output
 ```
@@ -44,7 +80,9 @@ NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scrip
 To capture authenticated pages using cookies from the user's real browser:
 
 ```bash
-NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scripts/capture.js" \
+NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" \
+PLAYWRIGHT_BROWSERS_PATH="${CLAUDE_PLUGIN_DATA}" \
+node "${CLAUDE_PLUGIN_DATA}/dist/capture.js" \
   --urls <url1> <url2> ... \
   --cookies-from chrome \
   --output ./browser-capture-output

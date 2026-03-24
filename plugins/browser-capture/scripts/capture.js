@@ -35,10 +35,40 @@ function resolveModules() {
 if (!resolveModules()) {
   process.stderr.write(JSON.stringify({
     success: false,
-    error: 'Dependencies not found. Run the plugin SessionStart hook or manually: npm install playwright js-beautify'
+    error: 'Dependencies not found. Run the plugin SessionStart hook or manually: npm install playwright js-beautify better-sqlite3'
   }) + '\n');
   process.exit(1);
 }
+
+// Self-resolve Playwright browser path.
+// install-deps.js installs Chromium into CLAUDE_PLUGIN_DATA with PLAYWRIGHT_BROWSERS_PATH,
+// but that env var isn't set at capture runtime. Resolve it here so Playwright finds its browser.
+function resolveBrowserPath() {
+  if (process.env.PLAYWRIGHT_BROWSERS_PATH) return; // already set
+
+  const candidates = [];
+  if (process.env.CLAUDE_PLUGIN_DATA) candidates.push(process.env.CLAUDE_PLUGIN_DATA);
+  // NODE_PATH parent (node_modules sibling)
+  if (process.env.NODE_PATH) {
+    for (const p of process.env.NODE_PATH.split(path.delimiter)) {
+      if (p) candidates.push(path.dirname(p));
+    }
+  }
+  candidates.push(path.join(__dirname, '..'));
+
+  for (const dir of candidates) {
+    // Playwright stores browsers in chromium-XXXX/ directories
+    try {
+      const entries = fs.readdirSync(dir);
+      if (entries.some(e => e.startsWith('chromium-'))) {
+        process.env.PLAYWRIGHT_BROWSERS_PATH = dir;
+        return;
+      }
+    } catch {}
+  }
+}
+
+resolveBrowserPath();
 
 // NOW safe to require external deps
 const crypto = require('crypto');
@@ -502,6 +532,15 @@ async function main() {
     process.exit(1);
   }
 
+  // Auto-prepend https:// to bare domains (e.g. "example.com" → "https://example.com")
+  args.urls = args.urls.map(url => {
+    if (!/^https?:\/\//i.test(url)) {
+      process.stderr.write('  Auto-prepending https:// to: ' + url + '\n');
+      return 'https://' + url;
+    }
+    return url;
+  });
+
   OUTPUT_DIR = path.resolve(args.output);
 
   process.stderr.write('Starting capture...\n');
@@ -520,24 +559,51 @@ async function main() {
 
   // Import cookies from a real browser if requested
   if (args.cookiesFrom) {
+    // Check if better-sqlite3 is available (optional dep for cookie import)
+    let sqliteAvailable = false;
     try {
-      const { importCookies } = require('./cookie-import');
-      process.stderr.write('Importing cookies from ' + args.cookiesFrom + '...\n');
-      const result = await importCookies(args.cookiesFrom, {
-        domains: args.cookieDomains,
-        profile: args.cookieProfile,
-      });
-      if (result.count > 0) {
-        await context.addCookies(result.cookies);
-        process.stderr.write('  Imported ' + result.count + ' cookies' +
-          (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
-      } else {
-        process.stderr.write('  No cookies found' +
-          (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
+      require('better-sqlite3');
+      sqliteAvailable = true;
+    } catch {
+      process.stderr.write('  better-sqlite3 not installed. Attempting inline install...\n');
+      try {
+        const { execFileSync } = require('child_process');
+        const installDir = process.env.CLAUDE_PLUGIN_DATA || path.dirname(process.env.NODE_PATH || __dirname);
+        execFileSync('npm', ['install', 'better-sqlite3', '--production'], {
+          cwd: installDir,
+          stdio: 'pipe',
+          timeout: 60000,
+        });
+        resolveModules();
+        require('better-sqlite3');
+        sqliteAvailable = true;
+        process.stderr.write('  better-sqlite3 installed successfully.\n');
+      } catch (installErr) {
+        process.stderr.write('  Could not install better-sqlite3: ' + installErr.message + '\n');
+        process.stderr.write('  Continuing without cookie import.\n');
       }
-    } catch (err) {
-      process.stderr.write('  Cookie import failed: ' + err.message + '\n');
-      process.stderr.write('  Continuing without cookies.\n');
+    }
+
+    if (sqliteAvailable) {
+      try {
+        const { importCookies } = require('./cookie-import');
+        process.stderr.write('Importing cookies from ' + args.cookiesFrom + '...\n');
+        const result = await importCookies(args.cookiesFrom, {
+          domains: args.cookieDomains,
+          profile: args.cookieProfile,
+        });
+        if (result.count > 0) {
+          await context.addCookies(result.cookies);
+          process.stderr.write('  Imported ' + result.count + ' cookies' +
+            (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
+        } else {
+          process.stderr.write('  No cookies found' +
+            (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
+        }
+      } catch (err) {
+        process.stderr.write('  Cookie import failed: ' + err.message + '\n');
+        process.stderr.write('  Continuing without cookies.\n');
+      }
     }
   }
 
