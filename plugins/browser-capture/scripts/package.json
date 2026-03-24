@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "playwright": "^1.58.2",
-    "js-beautify": "^1.15.4"
+    "js-beautify": "^1.15.4",
+    "better-sqlite3": "^11.7.0"
   }
 }

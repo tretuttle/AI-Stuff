@@ -41,6 +41,20 @@ NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scrip
   --output ./browser-capture-output
 ```
 
+To capture authenticated pages using cookies from the user's real browser:
+
+```bash
+NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scripts/capture.js" \
+  --urls <url1> <url2> ... \
+  --cookies-from chrome \
+  --output ./browser-capture-output
+```
+
+Cookie flags:
+- `--cookies-from <browser>` — import cookies from a real browser (chrome, brave, edge, chromium, arc, vivaldi, opera)
+- `--cookie-domains <d1,d2>` — only import cookies for specific domains (comma-separated)
+- `--cookie-profile <name>` — browser profile (default: `Default`)
+
 The output is a domain-organized directory tree. Every resource gets a real file at its URL path. Resources where content couldn't be retrieved get a `No Content: {url}` marker file. A `_metadata.json` sidecar has the full request/response headers, status, timing, resource type, and cache status for every entry.
 
 ## Critical behavior
@@ -49,3 +63,5 @@ The output is a domain-organized directory tree. Every resource gets a real file
 2. **Capture everything by default.** Beautify, all domains, no-content markers, data URI extraction — all ON unless the user says otherwise.
 3. **Your job during capture is navigation, not task completion.** The browser is an instrument for recording, not a tool for accomplishing tasks on the site. Navigate to the pages the user described so the capture has what it needs.
 4. **After capture, report what was captured:** total files, size, domains hit, resource type breakdown. Then ask if the user wants to filter, grep, or analyze anything from the capture.
+5. **Cookie import is opt-in.** If the user mentions needing to be logged in, authenticated, or access private pages, use `--cookies-from <browser>`. Ask which browser if unclear. Never import cookies unless the user indicates they need authentication.
+6. **Cookie import is non-fatal.** If cookie import fails (browser not found, DB locked, decryption error), the capture continues without cookies. Report the failure but don't abort.

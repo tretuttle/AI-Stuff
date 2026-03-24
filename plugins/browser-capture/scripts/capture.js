@@ -55,6 +55,9 @@ function parseArgs(argv) {
     dataUris: true,      // D-05: data-uri extraction ON
     followLinks: false,
     followDepth: 1,
+    cookiesFrom: null,       // browser name (e.g. 'chrome', 'brave')
+    cookieDomains: null,     // specific domains to import, or null for all
+    cookieProfile: 'Default', // browser profile name
   };
 
   let i = 2; // skip 'node' and script path
@@ -92,6 +95,18 @@ function parseArgs(argv) {
         break;
       case '--follow-depth':
         args.followDepth = parseInt(argv[++i], 10) || 1;
+        i++;
+        break;
+      case '--cookies-from':
+        args.cookiesFrom = argv[++i];
+        i++;
+        break;
+      case '--cookie-domains':
+        args.cookieDomains = argv[++i].split(',').map(d => d.trim()).filter(Boolean);
+        i++;
+        break;
+      case '--cookie-profile':
+        args.cookieProfile = argv[++i];
         i++;
         break;
       default:
@@ -502,6 +517,29 @@ async function main() {
   // Enable CDP domains
   await cdpSession.send('Network.enable');
   await cdpSession.send('Page.enable');
+
+  // Import cookies from a real browser if requested
+  if (args.cookiesFrom) {
+    try {
+      const { importCookies } = require('./cookie-import');
+      process.stderr.write('Importing cookies from ' + args.cookiesFrom + '...\n');
+      const result = await importCookies(args.cookiesFrom, {
+        domains: args.cookieDomains,
+        profile: args.cookieProfile,
+      });
+      if (result.count > 0) {
+        await context.addCookies(result.cookies);
+        process.stderr.write('  Imported ' + result.count + ' cookies' +
+          (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
+      } else {
+        process.stderr.write('  No cookies found' +
+          (result.failed > 0 ? ' (' + result.failed + ' failed to decrypt)' : '') + '\n');
+      }
+    } catch (err) {
+      process.stderr.write('  Cookie import failed: ' + err.message + '\n');
+      process.stderr.write('  Continuing without cookies.\n');
+    }
+  }
 
   const globalMetadata = [];
 

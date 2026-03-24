@@ -26,6 +26,9 @@ NODE_PATH="${CLAUDE_PLUGIN_DATA}/node_modules" node "${CLAUDE_PLUGIN_ROOT}/scrip
 - `--skip-data-uris` — don't extract inline data URIs
 - `--follow-links` — follow sub-links on pages (useful for GitHub repos, SPAs)
 - `--follow-depth <n>` — max depth for link following (default: 1)
+- `--cookies-from <browser>` — import cookies from a real browser before capture (e.g. `chrome`, `brave`, `edge`, `chromium`, `arc`, `vivaldi`, `opera`). Enables capturing authenticated/logged-in pages.
+- `--cookie-domains <d1,d2>` — comma-separated domains to import cookies for (default: all cookies from the browser)
+- `--cookie-profile <name>` — browser profile to use (default: `Default`)
 
 ## Output structure
 
