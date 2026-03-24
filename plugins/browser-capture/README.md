@@ -31,9 +31,13 @@ This is the tool for reverse engineering, security auditing, endpoint discovery,
 - **Full metadata** — request/response headers, status codes, timing, cache status for every resource
 - **Domain-organized output** — files written to their URL paths under domain directories, exactly mirroring the site structure
 - **Beautification** — captured JS/CSS/HTML is beautified for readability by default
+- **Cookie import** — capture authenticated pages by importing cookies from Chrome, Brave, Edge, Arc, Vivaldi, Opera, or Chromium
 - **Post-capture analysis** — built-in agent for filtering, grepping, and summarizing results after capture
+- **Output sanitization** — PostToolUse hook prevents binary/image data from poisoning the conversation context
+- **Health diagnostics** — `/browser-capture:health` checks deps, browser, paths, and reports status with fixes
+- **Auto-update checking** — notifies you when a new version is available
 - **Natural language** — "Capture everything from the Claude Code plugin docs" just works
-- **Zero setup** — dependencies install automatically on first run
+- **Zero setup** — dependencies and Chromium install automatically on first run, with launch verification
 
 ---
 
@@ -46,7 +50,7 @@ This is the tool for reverse engineering, security auditing, endpoint discovery,
 /plugin install browser-capture@ai-stuff
 ```
 
-Dependencies (Playwright, js-beautify) are installed automatically via SessionStart hook.
+Dependencies (Playwright, js-beautify, better-sqlite3) and Chromium are installed automatically via SessionStart hook.
 
 ### First Capture
 
@@ -64,6 +68,13 @@ The skill auto-triggers when it detects capture/archive/record intent.
 
 ---
 
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/browser-capture:capture <urls>` | Capture all browser resources from one or more URLs |
+| `/browser-capture:health` | Run diagnostic checks on deps, browser, paths, and configuration |
+
 ## Usage
 
 ```
@@ -80,6 +91,11 @@ The skill auto-triggers when it detects capture/archive/record intent.
 | `--skip-data-uris` | Don't extract inline data URIs |
 | `--follow-links` | Follow sub-links on pages |
 | `--follow-depth <n>` | Max depth for link following (default: 1) |
+| `--cookies-from <browser>` | Import cookies from a real browser (`chrome`, `brave`, `edge`, `chromium`, `arc`, `vivaldi`, `opera`) |
+| `--cookie-domains <d1,d2>` | Only import cookies for specific domains (comma-separated) |
+| `--cookie-profile <name>` | Browser profile to use (default: `Default`) |
+
+Bare domains like `example.com` are auto-prefixed with `https://`.
 
 ---
 
@@ -137,6 +153,30 @@ The agent can filter by resource type, domain, status code, cache status, or con
 
 ---
 
+## Authenticated Captures
+
+Capture pages that require login by importing cookies from your real browser:
+
+```
+/browser-capture:capture https://app.example.com/dashboard --cookies-from chrome
+```
+
+Cookies are decrypted from your browser's cookie database (macOS Keychain or Linux secret storage) and injected into the capture session. Your browser doesn't need to be closed — the plugin copies the database to avoid lock conflicts.
+
+Supported browsers: Chrome, Chromium, Brave, Edge, Arc, Vivaldi, Opera.
+
+---
+
+## Health Check
+
+```
+/browser-capture:health
+```
+
+Runs 10 diagnostic checks: Node.js version, plugin env vars, playwright, js-beautify, better-sqlite3, Chromium browser, install marker, capture script, disk space, and platform. Reports pass/fail/warn with suggested fixes for failures.
+
+---
+
 <details>
 <summary><strong>Dependencies</strong></summary>
 
@@ -144,8 +184,9 @@ Installed automatically on first run via SessionStart hook:
 
 - **playwright** — Headless Chromium for navigation and CDP session access
 - **js-beautify** — Beautifies captured JS/CSS/HTML for readability
+- **better-sqlite3** — Reads Chromium cookie databases for authenticated captures
 
-No manual dependency installation required.
+No manual dependency installation required. Chromium is verified to launch after install.
 
 </details>
 

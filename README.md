@@ -81,8 +81,10 @@ Then pick what you want:
 - All network traffic — XHR, fetch, scripts, CSS, fonts, images, API responses
 - Full request/response metadata (headers, status codes, timing, cache status)
 - Domain-organized directory structure with actual files
+- Authenticated captures — import cookies from Chrome, Brave, Edge, Arc, Vivaldi, Opera
 - Post-capture analysis agent for filtering, grepping, and searching results
-- Zero setup — dependencies install automatically
+- Health diagnostics, output sanitization, and auto-update checking
+- Zero setup — dependencies and Chromium install automatically with launch verification
 
 ```
 /plugin install browser-capture@ai-stuff
