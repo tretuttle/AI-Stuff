@@ -46,19 +46,20 @@ Persona gives you multiple expert perspectives in one command — each applying 
 - **Multiple expert perspectives** — ThePrimeagen, DHH, Rich Harris, Dan Abramov, and more review your code simultaneously, each through their unique philosophical lens
 - **Principle-based, not stack-specific** — Personas apply transferable beliefs (simplicity, performance, composition, testing) to whatever codebase they're invoked in
 - **Unified findings** — Duplicates merged, agreement boosts confidence, disagreements surfaced with both positions
-- **Always opinionated** — Full intensity by default. These are the most polarizing developers on the internet, stereotyped on purpose. That's the product.
 - **Interactive persona chat** — Channel any persona for pair programming, architecture discussions, or code walkthroughs with full tool access
 - **Guided workflow** — `/persona:run` walks you through everything. Power users can go direct.
 - **Extensible** — Drop a new `.md` file in `agents/` and it's automatically available
 - **Project memory** — Personas accumulate project-specific insights across sessions
 
+> [!TIP]
+> **Always opinionated.** Full intensity by default. These are the most polarizing developers on the internet, stereotyped on purpose. That's the product.
+
 ---
 
 ## Getting Started
 
-### Prerequisites
-
-- [Claude Code](https://claude.com/claude-code) with plugin marketplace support
+> [!IMPORTANT]
+> Requires [Claude Code](https://claude.com/claude-code) with plugin marketplace support.
 
 ### Install
 
@@ -143,6 +144,24 @@ You: Look at src/utils/cache.ts — is this cache implementation good?
 
 ## Commands
 
+### How commands route
+
+```mermaid
+flowchart TD
+    A["/persona:run"] --> B{Arguments?}
+    B -- None --> C["Guided workflow"]
+    B -- "review ..." --> D["/persona:review"]
+    B -- "persona name" --> E["/persona:call"]
+    B -- "--reset" --> F["Reset to default Claude"]
+    C --> G{"User picks"}
+    G -- "Review code" --> D
+    G -- "Chat as persona" --> E
+    G -- "Browse personas" --> H["List all personas"]
+    D --> I["Dispatch subagents in parallel"]
+    I --> J["Synthesize findings"]
+    E --> K["Adopt persona voice + tools"]
+```
+
 ### /persona:run
 
 The main entry point. Guided when called without arguments, direct when called with them.
@@ -184,7 +203,10 @@ Power-user shortcut. Goes straight to interactive persona chat.
 
 Each persona applies their principles to whatever codebase you're working in. They don't recommend switching your stack — they tell you what's wrong with how you're using it, through the lens of what they believe about software.
 
-Inspired by these developers' public writing, talks, and recurring opinions.
+Inspired by these developers' public writing, talks, and recurring opinions.[^1]
+
+<details>
+<summary><strong>14 personas available — click to see all</strong></summary>
 
 | Persona | Focus | Philosophy |
 |---------|-------|------------|
@@ -203,6 +225,8 @@ Inspired by these developers' public writing, talks, and recurring opinions.
 | **Theo Browne** | Type safety, shipping speed, pragmatism | Ship it, then iterate |
 | **Wes Bos** | Readability, naming, platform features | A beginner should be able to read this |
 
+</details>
+
 [Create your own &#8594;](docs/CUSTOM-PERSONAS.md)
 
 ---
@@ -219,20 +243,35 @@ Inspired by these developers' public writing, talks, and recurring opinions.
 
 ## FAQ
 
-**How many personas can I run at once?**
+<details>
+<summary><strong>How many personas can I run at once?</strong></summary>
+
 All of them. Use `--only` to narrow down.
+</details>
 
-**Does this cost more?**
+<details>
+<summary><strong>Does this cost more?</strong></summary>
+
 Yes. Each persona is a separate subagent. Use `--only` to control costs.
+</details>
 
-**Can personas modify my code?**
+<details>
+<summary><strong>Can personas modify my code?</strong></summary>
+
 In review mode, no. In chat mode (`/persona:call`), yes.
+</details>
 
-**Works with Python / Go / Rust / etc?**
+<details>
+<summary><strong>Works with Python / Go / Rust / etc?</strong></summary>
+
 Yes. The personas' principles apply to any language and framework.
+</details>
 
-**What's the difference between review and call?**
+<details>
+<summary><strong>What's the difference between review and call?</strong></summary>
+
 Review dispatches read-only subagents that return structured findings. Call makes Claude adopt a persona's voice with full capabilities for interactive conversation.
+</details>
 
 ---
 
@@ -249,7 +288,7 @@ Review dispatches read-only subagents that return structured findings. Call make
 - [Claude Code](https://claude.com/claude-code) by Anthropic — the plugin platform
 - [ThePrimeagen](https://www.youtube.com/@ThePrimeagen), [DHH](https://dhh.dk/), [Rich Harris](https://github.com/Rich-Harris), [Dan Abramov](https://github.com/gaearon), [Evan You](https://github.com/yyx990803), [Kent C. Dodds](https://kentcdodds.com/), [Lee Robinson](https://leerob.io/), [Matt Mullenweg](https://ma.tt/), [Matt Pocock](https://www.mattpocock.com/), [Chris Coyier](https://chriscoyier.net/), [Scott Tolinski](https://scotttolinski.com/), [Tanner Linsley](https://tanstack.com/), [Theo Browne](https://t3.gg/), [Wes Bos](https://wesbos.com/) — the developers whose philosophies inspire these personas
 
-*Persona is a fan project. The personas are inspired by these developers' public teachings, talks, and writing. It is not endorsed by or affiliated with any of the individuals named above.*
+[^1]: Persona is a fan project. The personas are inspired by these developers' public teachings, talks, and writing. It is not endorsed by or affiliated with any of the individuals named above.
 
 ---
 

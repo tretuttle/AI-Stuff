@@ -36,10 +36,8 @@ Building an Omarchy theme by hand means extracting a palette, mapping colors to 
 
 ## Getting Started
 
-### Prerequisites
-
-- [Omarchy](https://github.com/nicholasgasior/omarchy) desktop environment
-- [Claude Code](https://claude.com/claude-code) with plugin marketplace support
+> [!IMPORTANT]
+> Requires [Omarchy](https://github.com/nicholasgasior/omarchy) desktop environment and [Claude Code](https://claude.com/claude-code) with plugin marketplace support.
 
 ### Install
 
@@ -101,6 +99,15 @@ Captures a preview screenshot, publishes to GitHub, and provides an install URL.
 
 The plugin guides you through theme creation with checkpoints at each stage:
 
+```mermaid
+flowchart LR
+    A["Palette\nextraction"] --> B["colors.toml\ngeneration"]
+    B --> C["Live\ntesting"]
+    C --> D["Screenshot\nsetup"]
+    D --> E["Screenshot\ncapture"]
+    E --> F["GitHub\npublishing"]
+```
+
 1. **Palette extraction** — Review extracted colors from your wallpaper
 2. **colors.toml generation** — Review the 22-slot color assignments
 3. **Live testing** — Apply the theme with `omarchy-theme-set` and see it on your desktop
@@ -115,7 +122,8 @@ The plugin guides you through theme creation with checkpoints at each stage:
 - Install only via GitHub + `omarchy-theme-install`
 - PreToolUse hook blocks any Write/Edit to system theme directories
 
-## Dependencies
+<details>
+<summary><strong>Dependencies</strong></summary>
 
 **Automatically installed by setup hook:**
 - **hellwal** — Palette extraction (installed via `omarchy-pkg-aur-add`)
@@ -127,9 +135,12 @@ The plugin guides you through theme creation with checkpoints at each stage:
 - **kitty** — Terminal (or your configured terminal)
 - **thunar** — File manager
 
-## Optional: Auto-approve Commands
+</details>
 
-To skip confirmation prompts for theme commands:
+<details>
+<summary><strong>Optional: Auto-approve commands</strong></summary>
+
+To skip confirmation prompts for theme commands, add to your project's `.claude/settings.local.json`:
 
 ```json
 {
@@ -144,7 +155,7 @@ To skip confirmation prompts for theme commands:
 }
 ```
 
-Add to your project's `.claude/settings.local.json`.
+</details>
 
 ---
 

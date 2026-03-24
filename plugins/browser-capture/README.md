@@ -85,7 +85,8 @@ The skill auto-triggers when it detects capture/archive/record intent.
 
 ## What It Captures
 
-This is NOT a scraper or summarizer. It captures everything the browser receives:
+> [!NOTE]
+> This is NOT a scraper or summarizer. It captures **everything** the browser receives during navigation.
 
 - All network traffic — XHR, fetch, scripts, CSS, fonts, images, API responses
 - Cached/static resources from the browser's resource tree
@@ -109,29 +110,35 @@ browser-capture-output/
     └── lib.js
 ```
 
-- **`_metadata.json`** — headers, status, timing, cache status, resource type for every captured resource
-- **`_summary.txt`** — counts by domain, type, and status at a glance
-- **Domain directories** — actual files at their URL paths
+| File | Purpose |
+|------|---------|
+| `_metadata.json` | Headers, status, timing, cache status, resource type for every captured resource |
+| `_summary.txt` | Counts by domain, type, and status at a glance |
+| Domain directories | Actual files at their URL paths |
 
 ---
 
 ## Post-Capture Analysis
 
-After a capture completes, a built-in analysis agent can filter, grep, and summarize results:
+After a capture completes, a built-in analysis agent can filter, grep, and summarize results.
 
-```
-"Show me all the API endpoints this page calls"
-"List all domains this page talks to"
-"Grep the JS files for config objects"
-"What XHR requests were made?"
-"Filter to just the fetch/xhr resources"
-```
+> [!TIP]
+> The agent reads `_metadata.json` and the captured files on disk. Ask it anything about the capture:
+>
+> ```
+> "Show me all the API endpoints this page calls"
+> "List all domains this page talks to"
+> "Grep the JS files for config objects"
+> "What XHR requests were made?"
+> "Filter to just the fetch/xhr resources"
+> ```
 
-The agent reads `_metadata.json` and the captured files on disk. It can filter by resource type, domain, status code, cache status, or content pattern.
+The agent can filter by resource type, domain, status code, cache status, or content pattern.
 
 ---
 
-## Dependencies
+<details>
+<summary><strong>Dependencies</strong></summary>
 
 Installed automatically on first run via SessionStart hook:
 
@@ -140,7 +147,7 @@ Installed automatically on first run via SessionStart hook:
 
 No manual dependency installation required.
 
----
+</details>
 
 ## License
 
