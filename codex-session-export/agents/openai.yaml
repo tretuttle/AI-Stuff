@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex Session Export"
+  short_description: "List and export saved Codex CLI sessions"
+  default_prompt: "Use $codex-session-export to list saved Codex sessions and export one transcript without changing the resumable original."
+
+policy:
+  allow_implicit_invocation: true
