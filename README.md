@@ -31,9 +31,31 @@ Then pick what you want:
 /plugin install browser-capture@ai-stuff
 ```
 
+For Codex-only skills, use the package README in this repo instead of `/plugin install`.
+
 ---
 
 ## Plugins
+
+### codex-session-export
+
+> Saved session discovery and transcript export for Codex CLI. Lists saved Codex sessions, shows session IDs with friendly labels, and exports any session to `.jsonl` and readable `.txt` without touching the original resumable session.
+
+- Finds saved Codex sessions from `~/.codex/sessions`
+- Surfaces session UUIDs with practical resume-style labels
+- Exports raw `.jsonl` and readable `.txt`
+- Keeps the original session intact so `codex resume <SESSION_ID>` still works
+- Includes copy and symlink install instructions for Codex
+
+Codex install details:
+
+```bash
+cp -R ~/AI-Stuff/codex-session-export ~/.codex/skills/
+```
+
+[View details &#8594;](./codex-session-export/README.md)
+
+---
 
 ### persona
 
@@ -97,4 +119,3 @@ Then pick what you want:
 ## License
 
 MIT
-
