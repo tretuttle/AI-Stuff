@@ -1,6 +1,6 @@
 {
   "name": "project-recon",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Project reconnaissance and relationship mapping across a dual-SSD workstation. Scans projects, determines master/child/util relationships, and writes identity files.",
   "author": {
     "name": "Trent",
