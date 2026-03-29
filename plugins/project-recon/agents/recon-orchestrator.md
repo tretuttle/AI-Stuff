@@ -74,12 +74,13 @@ Do NOT use generic terms like "react", "typescript", "utils", "src".
 For each keyword, search OUTSIDE the current directory on both SSDs:
 
 ```bash
-# Name match
+# Name match — directories with similar names
 find /home/tt -maxdepth 3 -type d -iname "*{keyword}*" 2>/dev/null | grep -v '/\.' | grep -v node_modules | grep -v AppData | grep -v __pycache__ | grep -v "$(pwd)"
 find /mnt/windows/Users/trent -maxdepth 3 -type d -iname "*{keyword}*" 2>/dev/null | grep -v '/\.' | grep -v node_modules | grep -v AppData
 
-# Content match
-rg -l "{distinctive-term}" /home/tt --max-depth 3 -g '*.{json,md,toml,yml}' 2>/dev/null | grep -v '/\.' | grep -v "$(pwd)" | head -15
+# Content match — files that reference this project (DEEP search for reference.md files)
+rg -l "{project-name}" /home/tt --max-depth 6 -g 'reference.md' 2>/dev/null | grep -v '/\.' | grep -v "$(pwd)" | head -15
+rg -l "{distinctive-term}" /home/tt --max-depth 4 -g '*.{json,md,toml,yml}' 2>/dev/null | grep -v '/\.' | grep -v "$(pwd)" | head -15
 
 # Git remote match
 find /home/tt -maxdepth 4 -name config -path "*/.git/*" -exec grep -l "{remote-fragment}" {} \; 2>/dev/null | grep -v "$(pwd)"
@@ -87,6 +88,8 @@ find /home/tt -maxdepth 4 -name config -path "*/.git/*" -exec grep -l "{remote-f
 # Windows Claude history (READ ONLY — for session counts, never dispatch scouts here)
 ls -d /mnt/windows/Users/trent/.claude/projects/C--Users-trent*{name}* 2>/dev/null
 ```
+
+**IMPORTANT:** The reference.md search uses depth 6 because project-todo directories can be deeply nested (e.g. `/home/tt/X/Y/project-todo/Z/reference.md`). When a reference.md mentions this project, trace it back to the PROJECT ROOT that contains it (the nearest parent with a `.git/` or `package.json`) — that project root is the candidate, not the reference.md file itself.
 
 Merge candidates from Step 1b (reference.md declarations) and Step 3 (keyword sweep). Deduplicate.
 
@@ -118,6 +121,8 @@ Agent tool:
 ```
 
 **Do NOT skip this step. Do NOT analyze candidates yourself. Every candidate gets a scout.**
+
+**No exceptions.** Not for "trivial mirrors." Not for "obvious duplicates." Not for directories you already read. If it's on your candidate list, it gets a scout. Period. The only thing you are allowed to do with a candidate is dispatch a scout to it.
 
 Wait for all scouts to report back before proceeding to Step 5.
 
