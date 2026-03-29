@@ -28,7 +28,7 @@
       "name": "project-recon",
       "source": "./plugins/project-recon",
       "description": "Project reconnaissance and relationship mapping. Scans a project, sweeps both SSDs for related directories, determines master/child/util relationships, writes standardized identity files.",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "author": {
         "name": "Trent"
       },

@@ -59,14 +59,17 @@ For each connection you find, assign a **coupling strength**:
 - Candidate produces output the origin consumes → `feeds-into` (soft/intent)
 - Origin produces output the candidate consumes → `fed-by` (soft/intent)
 
-**Duplicate:** Same project, different location?
-- Same git remote, near-identical structure → `duplicate` (hard)
+**Same lineage, different state:** Same project in another location or at a different point in time?
+- Same git remote, same HEAD → `mirror` (hard)
+- Same git remote, different HEAD → `fork` or `orphaned-branch` (hard)
+- Same origin, diverged intentionally → `fork` (hard)
+- Same origin, abandoned/forgotten → `historical` (soft)
+- Same origin, was trying something → `experiment` (soft)
+
+**NEVER call these "stale" or "needing cleanup."** A copy behind on commits is a fork, a try, an experiment, or historical context — not waste. Report what it IS, not what should be done with it.
 
 **Reference material:** Inspiration, education, design reference?
 - Candidate is used for learning/inspiration by the origin → `reference-material` (intent)
-
-**Experiment:** Scratch/prototype version?
-- Smaller, exploratory, testing an idea from the other → `experiment-of` (soft)
 
 **Declared relationship:** Was this flagged as "declared in reference.md"?
 - If yes, it IS related by human intent. Read the reference.md context to understand HOW. Do NOT call it unrelated.
@@ -124,7 +127,7 @@ candidate: {absolute path}
 candidate-summary: {1-2 sentence description}
 origin: {origin project name}
 connections:
-  - relationship: {child-of | parent-of | uses | used-by | feeds-into | fed-by | duplicate | reference-material | experiment-of}
+  - relationship: {child-of | parent-of | uses | used-by | feeds-into | fed-by | mirror | fork | orphaned-branch | historical | experiment | reference-material}
     coupling: {hard | soft | intent}
     detail: {one sentence}
   - relationship: {can have multiple}

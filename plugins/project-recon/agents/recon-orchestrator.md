@@ -155,7 +155,9 @@ Write `.project-identity.md` in the CURRENT directory using the standard format:
 | /path/to/parent | child-of | hard | Extracted from this monolith |
 | /path/to/tool | feeds-into | soft | Planned rendering engine per reference.md |
 | /path/to/ref | reference-material | intent | Design inspiration for the overhaul |
-| /path/to/copy | duplicate | hard | Same remote, 3 commits behind |
+| /path/to/copy | mirror | hard | Same remote, same HEAD |
+| /path/to/old | historical | soft | Earlier iteration, diverged at commit abc123 |
+| /path/to/try | experiment | soft | Tested Next.js migration, not adopted |
 ```
 
 **Format rules:**
