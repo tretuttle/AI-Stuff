@@ -9,21 +9,36 @@ BIN_DIR="${PLUGIN_ROOT}/bin"
 
 echo "Setting up omarchy-theme plugin..."
 
-# Install hellwal via omarchy's AUR helper
-if ! command -v hellwal &>/dev/null; then
-    if ! command -v omarchy-pkg-aur-add &>/dev/null; then
-        echo "Error: omarchy-pkg-aur-add not found. Install hellwal manually:"
-        echo "  yay -S hellwal  # or paru -S hellwal"
+# Create bin directory if needed
+mkdir -p "$BIN_DIR"
+
+# Build hellwal from source (no sudo required)
+if [[ ! -x "${BIN_DIR}/hellwal" ]]; then
+    echo "Building hellwal from source..."
+    HELLWAL_VERSION="1.0.7"
+    HELLWAL_URL="https://github.com/danihek/hellwal/archive/refs/tags/v${HELLWAL_VERSION}.tar.gz"
+
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+
+    curl -sL "$HELLWAL_URL" | tar xz -C "$TEMP_DIR"
+    cd "$TEMP_DIR/hellwal-${HELLWAL_VERSION}"
+
+    cc -Wall -Wextra -O3 hellwal.c -o hellwal -lm -DVERSION=\"${HELLWAL_VERSION}\"
+    mv hellwal "${BIN_DIR}/hellwal"
+    chmod +x "${BIN_DIR}/hellwal"
+
+    cd - > /dev/null
+
+    if ! "${BIN_DIR}/hellwal" --version &>/dev/null; then
+        echo "Error: hellwal build failed"
         exit 1
     fi
-    echo "Installing hellwal..."
-    omarchy-pkg-aur-add hellwal
+
+    echo "hellwal built and installed to ${BIN_DIR}/hellwal"
 else
     echo "hellwal already installed"
 fi
-
-# Create bin directory if needed
-mkdir -p "$BIN_DIR"
 
 # Download tint binary
 if [[ ! -x "${BIN_DIR}/tint" ]]; then
@@ -46,5 +61,5 @@ else
 fi
 
 echo "Setup complete!"
-echo "  hellwal: $(command -v hellwal)"
+echo "  hellwal: ${BIN_DIR}/hellwal"
 echo "  tint: ${BIN_DIR}/tint"

@@ -45,7 +45,7 @@ Building an Omarchy theme by hand means extracting a palette, mapping colors to 
 /plugin install omarchy-theme@ai-stuff
 ```
 
-Dependencies (hellwal, tint) are installed automatically via setup hook.
+Dependencies (`hellwal` and `tint`) are installed automatically by `scripts/setup.sh` into the plugin `bin/` directory.
 
 ### Create Your First Theme
 
@@ -124,15 +124,16 @@ flowchart LR
 <details>
 <summary><strong>Dependencies</strong></summary>
 
-**Automatically installed by setup hook:**
-- **hellwal** — Palette extraction (installed via `omarchy-pkg-aur-add`)
-- **tint** — Image recoloring (bundled binary downloaded to plugin's bin/)
+**Automatically installed by `setup.sh` (no sudo required):**
+- **hellwal** — Palette extraction (built from source into the plugin `bin/`)
+- **tint** — Image recoloring (pre-built binary downloaded to the plugin `bin/`)
 
 **Expected on Omarchy (no action needed):**
 - **grim** — Screenshot capture
 - **gh** — GitHub CLI for publishing
 - **kitty** — Terminal (or your configured terminal)
 - **thunar** — File manager
+- **cc** — C compiler for building `hellwal`
 
 </details>
 
@@ -175,4 +176,3 @@ To skip confirmation prompts for theme commands, add to your project's `.claude/
 ## License
 
 MIT
-
