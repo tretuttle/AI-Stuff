@@ -12,8 +12,11 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 ## Task
 
-If a `.project-identity.md` already exists above, report its contents and stop. Do not re-scan.
+Check the existing identity above:
+- If it contains `**Schema:** 2` → report its contents and stop. Already current.
+- If it exists but has no `**Schema:**` line, or schema is not `2` → outdated. Delete it and proceed with a full scan.
+- If no identity file exists → proceed with a full scan.
 
-Otherwise, launch the recon-orchestrator agent with this context to perform a full scan.
+For a full scan, launch the recon-orchestrator agent with this context.
 
 Launch the recon-orchestrator agent now.

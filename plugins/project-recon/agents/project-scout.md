@@ -21,9 +21,11 @@ You are a project scout. You have been sent to a specific directory by the recon
 
 ## Step 0: Check for Existing Identity
 
-Before scanning, check if `.project-identity.md` already exists in this candidate directory. If it does, read it and report it back to the orchestrator immediately. Do NOT re-scan. Do NOT modify the existing file. Just return its contents as your scout report.
+Before scanning, check if `.project-identity.md` already exists in this candidate directory. If it does, read it and check the `**Schema:**` field.
 
-Only proceed to Step 1 if no `.project-identity.md` exists.
+- If `**Schema:** 2` → current. Report its contents back to the orchestrator immediately. Do NOT re-scan.
+- If `**Schema:**` is missing, `1`, or any other value → **outdated**. Delete the file and proceed to Step 1 as if it didn't exist.
+- If malformed → delete and re-scan.
 
 ## Step 1: Scan This Directory
 
@@ -92,6 +94,7 @@ If the relationship is NOT `unrelated`, write `.project-identity.md` in THIS can
 ```markdown
 # Project Identity
 
+**Schema:** 2
 **Name:** {candidate project name}
 **Path:** {this candidate's absolute path}
 **What it is:** {1-2 sentence description}

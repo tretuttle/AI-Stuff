@@ -34,7 +34,11 @@ Everything else gets a scout.
 
 ## Step 0: Check for Existing Identity
 
-Check if `.project-identity.md` already exists in the current directory. If it does, read it, report its contents to the user, and **stop immediately**. Do not re-scan.
+Check if `.project-identity.md` already exists in the current directory. If it does, read it and check the `**Schema:**` field.
+
+- If `**Schema:** 2` → current. Report contents and **stop**.
+- If `**Schema:**` is missing, `1`, or any value other than `2` → **outdated**. Delete the file and proceed to Step 1 as if it didn't exist. The full re-scan will produce a fresh identity at the current schema.
+- If the file exists but is malformed or doesn't match the standard format → delete it and re-scan.
 
 ## Step 1: Quick Scan — What Is This Project?
 
@@ -137,6 +141,7 @@ Write `.project-identity.md` in the CURRENT directory using the standard format:
 ```markdown
 # Project Identity
 
+**Schema:** 2
 **Name:** {project name}
 **Path:** {absolute path}
 **What it is:** {2-3 sentence description}
