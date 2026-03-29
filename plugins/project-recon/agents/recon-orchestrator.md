@@ -38,13 +38,13 @@ Check if `.project-identity.md` already exists in the current directory. If it d
 
 ## Step 1: Quick Scan — What Is This Project?
 
-Read the current directory. Check these in order, stop when you have a clear picture:
-- `ls` the root
-- `package.json` — name, description, dependencies, scripts
-- `CLAUDE.md`, `README.md`, `AGENTS.md`
-- `.git/` — remote URL, branch, last 5 commits
-- Config files (astro, next, vite, tsconfig, docker-compose, Cargo.toml, etc.)
-- `src/`, `apps/`, `packages/` — structural clues
+Read the current directory. Check what's there — not every project is a git repo or has a package.json. Adapt to what exists:
+- `ls` the root — this alone tells you a lot
+- `package.json`, `Cargo.toml`, `pyproject.toml`, `docker-compose.yml` — if present
+- `CLAUDE.md`, `README.md`, `AGENTS.md` — if present
+- `.git/` — remote URL, branch, last 5 commits — **if it's a git repo**
+- Config files, `src/`, `apps/`, `packages/` — if present
+- `.md` files, `.txt` files, images, zips — many projects are just collections of files with no build system. That's fine. Describe what you see.
 
 Write down internally: 2-3 sentences of what this project IS and DOES. This is the "origin summary" you'll hand to scouts.
 
@@ -62,12 +62,13 @@ Any paths mentioned in these reference files are AUTOMATIC candidates for Step 4
 
 From Step 1, pull out search terms. Be specific:
 - The directory name itself
-- Package name from package.json if different from dir name
-- Git remote repo name (the `org/repo` part)
-- 3-5 **distinctive** terms: unique package names in dependencies, unusual filenames, domain-specific words
-- Names of key internal packages or workspaces
+- Package name from package.json if different from dir name (if package.json exists)
+- Git remote repo name (if it's a git repo)
+- 3-5 **distinctive** terms: unique file names, topic-specific words, subdirectory names that are unusual
+- Names of key internal packages or workspaces (if applicable)
+- For non-code projects: key filenames, subject matter terms, names of things in the files
 
-Do NOT use generic terms like "react", "typescript", "utils", "src".
+Do NOT use generic terms like "react", "typescript", "utils", "src", "images", "docs".
 
 ## Step 3: Sweep Outside This Directory
 
@@ -82,14 +83,15 @@ find /mnt/windows/Users/trent -maxdepth 3 -type d -iname "*{keyword}*" 2>/dev/nu
 rg -l "{project-name}" /home/tt --max-depth 6 -g 'reference.md' 2>/dev/null | grep -v '/\.' | grep -v "$(pwd)" | head -15
 rg -l "{distinctive-term}" /home/tt --max-depth 4 -g '*.{json,md,toml,yml}' 2>/dev/null | grep -v '/\.' | grep -v "$(pwd)" | head -15
 
-# Git remote match
+# Git remote match (ONLY if current project is a git repo with a remote)
+# Skip this entirely for non-git directories
 find /home/tt -maxdepth 4 -name config -path "*/.git/*" -exec grep -l "{remote-fragment}" {} \; 2>/dev/null | grep -v "$(pwd)"
 
 # Windows Claude history (READ ONLY — for session counts, never dispatch scouts here)
 ls -d /mnt/windows/Users/trent/.claude/projects/C--Users-trent*{name}* 2>/dev/null
 ```
 
-**IMPORTANT:** The reference.md search uses depth 6 because project-todo directories can be deeply nested (e.g. `/home/tt/X/Y/project-todo/Z/reference.md`). When a reference.md mentions this project, trace it back to the PROJECT ROOT that contains it (the nearest parent with a `.git/` or `package.json`) — that project root is the candidate, not the reference.md file itself.
+**IMPORTANT:** The reference.md search uses depth 6 because project-todo directories can be deeply nested (e.g. `/home/tt/X/Y/project-todo/Z/reference.md`). When a reference.md mentions this project, trace it back to the PROJECT ROOT that contains it — the nearest parent that looks like a project root (has `.git/`, `package.json`, `CLAUDE.md`, `README.md`, or is a direct child of `/home/tt/`). The reference.md file itself is not the candidate.
 
 Merge candidates from Step 1b (reference.md declarations) and Step 3 (keyword sweep). Deduplicate.
 
@@ -163,7 +165,7 @@ Write `.project-identity.md` in the CURRENT directory using the standard format:
 **Format rules:**
 - **No single "Role" field.** The Relationships table IS the role. A project's identity is the sum of its connections.
 - **Coupling strength** replaces confidence. Three levels:
-  - `hard` — code dependency, same git remote, direct import, package dependency
+  - `hard` — code dependency, same git remote, direct import, package dependency, shared files/content
   - `soft` — declared in reference.md, planned but not yet built, shared purpose
   - `intent` — makes sense to connect these, would be useful for, feeds the same goal
 - A project with zero relationships is standalone. Don't force a "master" label — just leave the table empty with a note.

@@ -27,12 +27,12 @@ Only proceed to Step 1 if no `.project-identity.md` exists.
 
 ## Step 1: Scan This Directory
 
-Go to the candidate path. Read the root:
-- `ls` the directory
-- `package.json` — name, description, dependencies
-- `README.md` or `CLAUDE.md`
-- `git -C {path} log --oneline -3` and `git -C {path} remote -v`
-- Top-level structure
+Go to the candidate path. Read what's there — not every project has git or a package.json. Adapt:
+- `ls` the directory — start here, always
+- `package.json`, `README.md`, `CLAUDE.md` — if they exist
+- `git -C {path} log --oneline -3` and `git -C {path} remote -v` — **only if `.git/` exists**
+- For non-code directories: read `.md` files, look at file types, check subdirectory names
+- A directory of images, zips, PDFs, or markdown files IS a project. Describe what it contains and what it's for.
 
 Produce: 1-2 sentences of what this candidate IS.
 
@@ -41,7 +41,7 @@ Produce: 1-2 sentences of what this candidate IS.
 A project can have MULTIPLE relationships to another project simultaneously. Think about ALL the ways this candidate connects to the origin — don't stop at the first match.
 
 For each connection you find, assign a **coupling strength**:
-- `hard` — code dependency, same git remote, direct import, package dependency
+- `hard` — code dependency, same git remote, direct import, package dependency, shared files/content
 - `soft` — declared in reference.md, planned but not yet built, shared purpose
 - `intent` — makes sense to connect these, would be useful for, feeds the same goal
 
@@ -60,13 +60,19 @@ For each connection you find, assign a **coupling strength**:
 - Origin produces output the candidate consumes → `fed-by` (soft/intent)
 
 **Same lineage, different state:** Same project in another location or at a different point in time?
+For git repos:
 - Same git remote, same HEAD → `mirror` (hard)
 - Same git remote, different HEAD → `fork` or `orphaned-branch` (hard)
 - Same origin, diverged intentionally → `fork` (hard)
-- Same origin, abandoned/forgotten → `historical` (soft)
-- Same origin, was trying something → `experiment` (soft)
 
-**NEVER call these "stale" or "needing cleanup."** A copy behind on commits is a fork, a try, an experiment, or historical context — not waste. Report what it IS, not what should be done with it.
+For any directory (git or not):
+- Overlapping content, clearly the same thing in a different place → `mirror` (hard)
+- Similar content but diverged/evolved differently → `fork` (soft)
+- Older version, earlier attempt at the same thing → `historical` (soft)
+- Was trying something, didn't continue → `experiment` (soft)
+- Abandoned or forgotten copy → `historical` (soft)
+
+**NEVER call these "stale" or "needing cleanup."** An older copy is a fork, a try, an experiment, or historical context — not waste. Report what it IS, not what should be done with it.
 
 **Reference material:** Inspiration, education, design reference?
 - Candidate is used for learning/inspiration by the origin → `reference-material` (intent)
