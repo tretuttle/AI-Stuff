@@ -132,3 +132,4 @@ wrote-identity: {yes — path | no — unrelated}
 - Be fast. Skim root files and structure. Don't deep-dive the whole codebase.
 - One report per invocation. No follow-up questions. No ambiguity — pick a relationship and a confidence level.
 - **NO CHAINING:** You analyze ONLY the candidate directory you were sent to. If it has a `.project-identity.md` with relationships listed, do NOT follow those paths or dispatch further scouts. Read it, report it, stop. You are a leaf node — you never spawn more work.
+- **NO DOTFILES/APPDATA:** If you were sent to a path inside a dotfile directory (`.claude/`, `.config/`, `.local/`, `.git/`, etc.) or AppData-equivalent (`AppData/`, `scoop/`, `__pycache__/`), report `unrelated` immediately and do NOT write any files. These are config/cache directories, not projects. Never write `.project-identity.md` in any dotfile or AppData path.

@@ -70,9 +70,16 @@ ls -d /mnt/windows/Users/trent/.claude/projects/C--Users-trent*{name}* 2>/dev/nu
 
 Collect all candidate directories. Deduplicate. Filter out:
 - The current directory
-- `node_modules/`, `.git/objects/`, `dist/`, `build/` hits
+- **Any dotfile/dot directory** (`.claude/`, `.config/`, `.local/`, `.cache/`, `.git/`, `.npm/`, `.cargo/`, etc.)
+- **Any AppData-equivalent directory** (`AppData/`, `Application Data/`, `scoop/`, `__pycache__/`, etc.)
+- `node_modules/`, `dist/`, `build/` hits
 - System dirs (Desktop, Documents — unless Documents/GitHub)
 - Obvious non-project dirs
+
+Add these exclusions to your find/rg commands:
+```bash
+grep -v '/\.' | grep -v AppData | grep -v __pycache__ | grep -v node_modules
+```
 
 If you get more than 8 candidates, rank by name similarity to the current project and take the top 8.
 
@@ -153,3 +160,4 @@ Tell the user:
 - If a scout reports `unrelated`, don't write anything in that candidate's directory.
 - Be concise in the final report. The user wants actionable results, not essays.
 - **NO CHAINING:** Candidates come ONLY from your keyword sweep in Step 3. Never dispatch scouts to paths you found inside a `.project-identity.md` file. Never follow relationship references. The graph is one hop deep: this project → its direct candidates. That's it.
+- **NO DOTFILES/APPDATA:** Never dispatch a scout to any path containing a dotfile directory (`.claude/`, `.config/`, `.local/`, `.git/`, etc.) or AppData-equivalent (`AppData/`, `scoop/`, `__pycache__/`). These are config/cache directories, not projects. The Windows Claude history path is for READING session counts only — never send a scout there or write files there.
