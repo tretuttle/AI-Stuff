@@ -128,11 +128,7 @@ Wait for all scouts to report back before proceeding to Step 5.
 
 ## Step 5: Write This Project's Identity
 
-Based on scout reports, determine this project's role:
-
-- If NO candidates had a meaningful relationship → **master**
-- If a candidate IS the parent/master of this project → **child-of** or **util-of** that candidate
-- If candidates are duplicates/forks → note them, this project is master if most complete/recent
+Based on scout reports, synthesize all relationships. A project can have MULTIPLE relationships simultaneously — it is not limited to one role. bleakBench can be a child-of trents-website AND connected to flash-ui AND fed by design-systems, all at different coupling strengths.
 
 Write `.project-identity.md` in the CURRENT directory using the standard format:
 
@@ -142,7 +138,6 @@ Write `.project-identity.md` in the CURRENT directory using the standard format:
 **Name:** {project name}
 **Path:** {absolute path}
 **What it is:** {2-3 sentence description}
-**Role:** {master | child-of /path/to/parent | util-of /path/to/parent}
 **Determined:** {YYYY-MM-DD}
 
 ## Locations
@@ -155,15 +150,22 @@ Write `.project-identity.md` in the CURRENT directory using the standard format:
 
 ## Relationships
 
-| Path | Relationship | Confidence | Notes |
-|------|-------------|------------|-------|
-| /path/to/... | this is child-of | high | Extracted from parent monolith |
-| /path/to/... | duplicate, stale | medium | Same remote, 3 commits behind |
+| Path | Relationship | Coupling | Notes |
+|------|-------------|----------|-------|
+| /path/to/parent | child-of | hard | Extracted from this monolith |
+| /path/to/tool | feeds-into | soft | Planned rendering engine per reference.md |
+| /path/to/ref | reference-material | intent | Design inspiration for the overhaul |
+| /path/to/copy | duplicate | hard | Same remote, 3 commits behind |
 ```
 
 **Format rules:**
-- Role is always from THIS project's perspective
-- Relationships table describes each related path's connection to THIS project
+- **No single "Role" field.** The Relationships table IS the role. A project's identity is the sum of its connections.
+- **Coupling strength** replaces confidence. Three levels:
+  - `hard` — code dependency, same git remote, direct import, package dependency
+  - `soft` — declared in reference.md, planned but not yet built, shared purpose
+  - `intent` — makes sense to connect these, would be useful for, feeds the same goal
+- A project with zero relationships is standalone. Don't force a "master" label — just leave the table empty with a note.
+- Relationships table describes each path's connection FROM this project's perspective
 - Locations always has all three rows even if "not found"/"none"
 - If appending to an existing file, preserve existing rows
 

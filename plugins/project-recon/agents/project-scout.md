@@ -38,36 +38,43 @@ Produce: 1-2 sentences of what this candidate IS.
 
 ## Step 2: Determine Relationship
 
-Compare this candidate to the origin summary you were given. Ask yourself:
+A project can have MULTIPLE relationships to another project simultaneously. Think about ALL the ways this candidate connects to the origin — don't stop at the first match.
 
-**Is the origin DERIVED from this candidate?**
-- Does this candidate contain the origin as a subdirectory or package?
-- Is this candidate more complete, older, or broader in scope?
-- Did the origin get extracted or forked from this?
-→ If yes: origin is `child-of` this candidate
+For each connection you find, assign a **coupling strength**:
+- `hard` — code dependency, same git remote, direct import, package dependency
+- `soft` — declared in reference.md, planned but not yet built, shared purpose
+- `intent` — makes sense to connect these, would be useful for, feeds the same goal
 
-**Is the origin a TOOL used by this candidate?**
-- Does this candidate import, reference, or depend on the origin?
-- Is the origin a utility/helper that serves this candidate?
-→ If yes: origin is `util-of` this candidate
+**Check each of these (find ALL that apply, not just one):**
 
-**Is this candidate DERIVED from the origin?**
-- Is the origin more complete, and this candidate is a subset/extraction/fork?
-→ If yes: this candidate is `child-of` origin (origin is master)
+**Lineage:** Is the origin derived from this candidate, or vice versa?
+- Origin extracted/forked from candidate → `child-of` (hard)
+- Candidate extracted/forked from origin → `parent-of` (hard)
 
-**Is this the SAME project in a different location?**
-- Same git remote? Near-identical file structure?
-→ If yes: `duplicate-of` — note which is more recent/complete
+**Utility:** Does one serve the other as a tool?
+- Candidate is a tool/engine/lib the origin uses or will use → `uses` (hard/soft)
+- Origin is a tool the candidate uses → `used-by` (hard/soft)
 
-**Is this an experiment or scratch version?**
-- Smaller, less complete, exploratory naming?
-→ If yes: `experiment-of`
+**Feeds into:** Does one provide input/material/data to the other?
+- Candidate produces output the origin consumes → `feeds-into` (soft/intent)
+- Origin produces output the candidate consumes → `fed-by` (soft/intent)
 
-**Was this flagged as "declared in reference.md"?**
-- If the orchestrator told you this candidate was declared in a reference.md file, it IS related by human intent even if there's no code dependency. Determine the most appropriate relationship type based on the reference.md context (e.g. "reference-material", "inspiration", "planned-extraction"). Do NOT call it unrelated.
+**Duplicate:** Same project, different location?
+- Same git remote, near-identical structure → `duplicate` (hard)
 
-**None of the above and NOT declared in reference.md?**
-→ `unrelated` — keyword was a false positive
+**Reference material:** Inspiration, education, design reference?
+- Candidate is used for learning/inspiration by the origin → `reference-material` (intent)
+
+**Experiment:** Scratch/prototype version?
+- Smaller, exploratory, testing an idea from the other → `experiment-of` (soft)
+
+**Declared relationship:** Was this flagged as "declared in reference.md"?
+- If yes, it IS related by human intent. Read the reference.md context to understand HOW. Do NOT call it unrelated.
+
+**Think creatively.** If this candidate isn't linked by code but WOULD obviously be useful to the origin project — if connecting them makes practical sense — that's an `intent` coupling. Report it. The user wants to know about connections that SHOULD exist, not just ones that already do.
+
+**Truly nothing?**
+→ `unrelated` — but be sure. Ask yourself: "If someone was working on the origin project, would they ever need to look at this candidate?" If yes, there's a relationship.
 
 ## Step 3: Write Identity in This Directory
 
@@ -79,7 +86,6 @@ If the relationship is NOT `unrelated`, write `.project-identity.md` in THIS can
 **Name:** {candidate project name}
 **Path:** {this candidate's absolute path}
 **What it is:** {1-2 sentence description}
-**Role:** {master | child-of /path/to/parent | util-of /path/to/parent}
 **Determined:** {YYYY-MM-DD}
 
 ## Locations
@@ -92,15 +98,17 @@ If the relationship is NOT `unrelated`, write `.project-identity.md` in THIS can
 
 ## Relationships
 
-| Path | Relationship | Confidence | Notes |
-|------|-------------|------------|-------|
-| {origin path} | {relationship from THIS project's perspective} | {high/medium/low} | {brief reason} |
+| Path | Relationship | Coupling | Notes |
+|------|-------------|----------|-------|
+| {origin path} | {relationship from THIS project's perspective} | {hard/soft/intent} | {brief reason} |
 ```
 
 **Format rules:**
-- Role is always from THIS project's perspective: "I am master" or "I am child-of X"
-- Relationships table describes each related path's connection to THIS project
-- Locations always has all three rows (Arch, Windows, Claude History) even if "not found"/"none"
+- **No single "Role" field.** The Relationships table IS the identity. A project can be connected to many things at different strengths.
+- **Coupling** replaces confidence: `hard` (code link), `soft` (declared/planned), `intent` (makes sense to connect)
+- A project can have MULTIPLE rows for the SAME related path if there are multiple connection types
+- Relationships table describes each path's connection FROM this project's perspective
+- Locations always has all three rows even if "not found"/"none"
 - For Locations: do a quick `find` on the other SSD and check for `.claude/projects/` history
 - If `.project-identity.md` already exists here, READ it first. Append new rows to Relationships — don't overwrite existing entries. Update Locations if you have better info.
 
@@ -115,14 +123,23 @@ SCOUT REPORT
 candidate: {absolute path}
 candidate-summary: {1-2 sentence description}
 origin: {origin project name}
-relationship: {child-of | util-of | master-of | duplicate-of | fork-of | experiment-of | reference-material | unrelated}
-direction: {describes the ORIGIN's role — e.g. "origin is child-of candidate" or "origin is master, candidate is duplicate"}
-confidence: {high | medium | low}
+connections:
+  - relationship: {child-of | parent-of | uses | used-by | feeds-into | fed-by | duplicate | reference-material | experiment-of}
+    coupling: {hard | soft | intent}
+    detail: {one sentence}
+  - relationship: {can have multiple}
+    coupling: {each with its own strength}
+    detail: {why this connection exists or should exist}
 evidence:
   - {point 1}
   - {point 2}
   - {point 3}
 wrote-identity: {yes — path | no — unrelated}
+```
+
+If truly unrelated (no connections at all), use:
+```
+connections: none
 ```
 
 ---
