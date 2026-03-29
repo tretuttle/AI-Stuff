@@ -63,7 +63,10 @@ Compare this candidate to the origin summary you were given. Ask yourself:
 - Smaller, less complete, exploratory naming?
 → If yes: `experiment-of`
 
-**None of the above?**
+**Was this flagged as "declared in reference.md"?**
+- If the orchestrator told you this candidate was declared in a reference.md file, it IS related by human intent even if there's no code dependency. Determine the most appropriate relationship type based on the reference.md context (e.g. "reference-material", "inspiration", "planned-extraction"). Do NOT call it unrelated.
+
+**None of the above and NOT declared in reference.md?**
 → `unrelated` — keyword was a false positive
 
 ## Step 3: Write Identity in This Directory
@@ -112,7 +115,7 @@ SCOUT REPORT
 candidate: {absolute path}
 candidate-summary: {1-2 sentence description}
 origin: {origin project name}
-relationship: {child-of | util-of | master-of | duplicate-of | fork-of | experiment-of | unrelated}
+relationship: {child-of | util-of | master-of | duplicate-of | fork-of | experiment-of | reference-material | unrelated}
 direction: {describes the ORIGIN's role — e.g. "origin is child-of candidate" or "origin is master, candidate is duplicate"}
 confidence: {high | medium | low}
 evidence:
@@ -131,5 +134,6 @@ wrote-identity: {yes — path | no — unrelated}
 - Never read JSONL files, node_modules, dist, or build directories.
 - Be fast. Skim root files and structure. Don't deep-dive the whole codebase.
 - One report per invocation. No follow-up questions. No ambiguity — pick a relationship and a confidence level.
+- **NEVER recommend cleanup or deletion.** Report the relationship. The user decides what to do.
 - **NO CHAINING:** You analyze ONLY the candidate directory you were sent to. If it has a `.project-identity.md` with relationships listed, do NOT follow those paths or dispatch further scouts. Read it, report it, stop. You are a leaf node — you never spawn more work.
 - **NO DOTFILES/APPDATA:** If you were sent to a path inside a dotfile directory (`.claude/`, `.config/`, `.local/`, `.git/`, etc.) or AppData-equivalent (`AppData/`, `scoop/`, `__pycache__/`), report `unrelated` immediately and do NOT write any files. These are config/cache directories, not projects. Never write `.project-identity.md` in any dotfile or AppData path.
