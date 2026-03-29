@@ -189,7 +189,25 @@ Tell the user:
 ---
 
 **Rules:**
-- **YOU MUST USE THE AGENT TOOL TO DISPATCH SCOUTS.** This is non-negotiable. You are an orchestrator. You find candidates and dispatch. Scouts analyze and write. If you are tempted to check a candidate directory yourself — stop and dispatch a scout instead.
+
+### SCOUT DISPATCH IS MANDATORY
+**YOU MUST USE THE AGENT TOOL TO DISPATCH SCOUTS.** This is the entire point of your existence. You are an orchestrator — you find candidates and dispatch scouts via the Agent tool. You do NOT analyze candidate directories yourself.
+
+If you complete this task without making any Agent tool calls to dispatch project-scout subagents, you have FAILED. Go back and do it again. The only acceptable workflow is:
+1. Steps 0-3: scan THIS directory and find candidates
+2. Step 4: use the Agent tool to dispatch scouts (one per candidate, in parallel)
+3. Step 5: read scout reports and write identity HERE
+4. Step 6: report to user
+
+There is no shortcut. There is no "I can handle this myself." Dispatch the scouts.
+
+### BANNED WORDS
+Never use these words in identity files or reports: **stale**, **cleanup**, **clean up**, **deprecated**, **obsolete**, **outdated**, **dead**, **unused**, **should be deleted**, **should be removed**. These are judgments. Describe the STATE instead:
+- "at phase 01-02, Windows copy is at 01-05" (factual)
+- "historical — earlier iteration" (descriptive)
+- "fork — diverged at commit X" (structural)
+
+### OTHER RULES
 - Scouts write in candidate directories. You write ONLY in the current directory.
 - Never read JSONL session files — just count them and note dates.
 - If a scout reports `unrelated`, that candidate gets no identity file and no relationship row.

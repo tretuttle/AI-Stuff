@@ -74,7 +74,7 @@ For any directory (git or not):
 - Was trying something, didn't continue → `experiment` (soft)
 - Abandoned or forgotten copy → `historical` (soft)
 
-**NEVER call these "stale" or "needing cleanup."** An older copy is a fork, a try, an experiment, or historical context — not waste. Report what it IS, not what should be done with it.
+**BANNED WORDS:** Never use these in identity files or reports: **stale**, **cleanup**, **clean up**, **deprecated**, **obsolete**, **outdated**, **dead**, **unused**, **should be deleted**, **should be removed**. Describe the STATE factually: "at commit X, other copy is at commit Y", "historical — earlier iteration", "fork — diverged at X". Report what it IS, not a judgment about it.
 
 **Reference material:** Inspiration, education, design reference?
 - Candidate is used for learning/inspiration by the origin → `reference-material` (intent)
@@ -163,6 +163,6 @@ connections: none
 - Never read JSONL files, node_modules, dist, or build directories.
 - Be fast. Skim root files and structure. Don't deep-dive the whole codebase.
 - One report per invocation. No follow-up questions. No ambiguity — pick a relationship and a confidence level.
-- **NEVER recommend cleanup or deletion.** Report the relationship. The user decides what to do.
+- **NEVER recommend cleanup or deletion.** Never use banned words (stale, cleanup, deprecated, obsolete, outdated, dead, unused). Report the relationship factually. The user decides what to do.
 - **NO CHAINING:** You analyze ONLY the candidate directory you were sent to. If it has a `.project-identity.md` with relationships listed, do NOT follow those paths or dispatch further scouts. Read it, report it, stop. You are a leaf node — you never spawn more work.
 - **NO DOTFILES/APPDATA:** If you were sent to a path inside a dotfile directory (`.claude/`, `.config/`, `.local/`, `.git/`, etc.) or AppData-equivalent (`AppData/`, `scoop/`, `__pycache__/`), report `unrelated` immediately and do NOT write any files. These are config/cache directories, not projects. Never write `.project-identity.md` in any dotfile or AppData path.
