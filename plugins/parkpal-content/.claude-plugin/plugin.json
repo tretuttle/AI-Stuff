@@ -1,0 +1,14 @@
+{
+  "name": "parkpal-content",
+  "version": "1.0.0",
+  "description": "Disney park attraction content pipeline. Orchestrates 5 subagent skills to generate structured fact sheets and trivia for all 6 Disney parks, outputting Convex-ready JSON and human-review DOCX.",
+  "author": {
+    "name": "Trent",
+    "url": "https://trents.tech"
+  },
+  "repository": "https://github.com/tretuttle/AI-Stuff",
+  "license": "MIT",
+  "keywords": [
+    "parkpal", "disney", "content", "trivia", "convex", "pipeline", "subagents"
+  ]
+}

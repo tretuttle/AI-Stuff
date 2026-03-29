@@ -30,6 +30,7 @@ Then pick what you want:
 /plugin install omarchy-theme@ai-stuff
 /plugin install browser-capture@ai-stuff
 /plugin install project-recon@ai-stuff
+/plugin install parkpal-content@ai-stuff
 ```
 
 For Codex-only skills, use the package README in this repo instead of `/plugin install`.
@@ -132,6 +133,24 @@ cp -R ~/AI-Stuff/codex-session-export ~/.codex/skills/
 ```
 
 [View details &#8594;](./plugins/project-recon/README.md)
+
+---
+
+### parkpal-content
+
+> Disney park attraction content pipeline. Orchestrates 5 subagent skills to generate structured fact sheets and trivia for all 6 Disney parks — Convex-ready JSON and human-review DOCX through a researcher → writer → reviewer → formatter pipeline.
+
+- 5 specialized skills: orchestrator, researcher, writer, reviewer, formatter
+- Trivia firewall — enforced at writer, reviewer, hookify, and validation script levels
+- Dual output: JSON for Convex database seeding + DOCX for human review
+- Schema validation with `node scripts/validate.js`
+- Resume-friendly — tracks progress per park, continues where it left off
+
+```
+/plugin install parkpal-content@ai-stuff
+```
+
+[View details &#8594;](./plugins/parkpal-content/README.md)
 
 ---
 

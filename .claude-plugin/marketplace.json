@@ -33,6 +33,16 @@
         "name": "Trent"
       },
       "keywords": ["project", "recon", "organization", "dual-boot", "relationship-mapping"]
+    },
+    {
+      "name": "parkpal-content",
+      "source": "./plugins/parkpal-content",
+      "description": "Disney park attraction content pipeline. Orchestrates 5 subagent skills to generate structured fact sheets and trivia, outputting Convex-ready JSON and human-review DOCX.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Trent"
+      },
+      "keywords": ["parkpal", "disney", "content", "trivia", "convex", "pipeline"]
     }
   ]
 }

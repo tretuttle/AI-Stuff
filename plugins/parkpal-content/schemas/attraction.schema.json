@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ParkPal Attraction",
+  "description": "Canonical schema for a Disney park attraction document in Convex",
+  "type": "object",
+  "required": ["park", "land", "name", "leadImagineer", "opened", "theme", "sponsor", "rideSystem", "duration", "facts", "trivia"],
+  "properties": {
+    "park": {
+      "type": "string",
+      "enum": ["Magic Kingdom", "EPCOT", "Hollywood Studios", "Animal Kingdom", "Disneyland", "Disney California Adventure"]
+    },
+    "land": {
+      "type": "string",
+      "description": "Themed land within the park (e.g. 'Liberty Square', 'Tomorrowland')"
+    },
+    "name": {
+      "type": "string",
+      "description": "Current official attraction name as of 2026"
+    },
+    "leadImagineer": {
+      "type": "string",
+      "description": "Key Imagineers separated by ' · ' (middle dot)"
+    },
+    "opened": {
+      "type": "string",
+      "description": "Full date: 'Month Day, Year' (e.g. 'October 1, 1971')"
+    },
+    "precededBy": {
+      "type": ["string", "null"],
+      "description": "What previously occupied the space or the earlier version at another park. Null if original."
+    },
+    "theme": {
+      "type": "string",
+      "description": "One-sentence thematic description"
+    },
+    "sponsor": {
+      "type": "string",
+      "description": "Current or most recent sponsor. 'None' if never sponsored."
+    },
+    "rideSystem": {
+      "type": "string",
+      "description": "Ride vehicle/system type (e.g. 'Omnimover (Doom Buggies)', 'Flume boat')"
+    },
+    "duration": {
+      "type": "string",
+      "description": "Approximate duration (e.g. '~9 minutes')"
+    },
+    "facts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "maxItems": 8,
+      "description": "Imagineering & design notes — deep-dive bullet points"
+    },
+    "trivia": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TriviaQuestion" },
+      "minItems": 10,
+      "maxItems": 10,
+      "description": "Exactly 10 trivia questions: Q1-3 easy, Q4-7 medium, Q8-10 hard"
+    }
+  },
+  "$defs": {
+    "TriviaQuestion": {
+      "type": "object",
+      "required": ["difficulty", "question", "answers", "correct", "funFact"],
+      "properties": {
+        "difficulty": {
+          "type": "string",
+          "enum": ["easy", "medium", "hard"]
+        },
+        "question": {
+          "type": "string"
+        },
+        "answers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "Four choices prefixed: 'A) ...', 'B) ...', 'C) ...', 'D) ...'"
+        },
+        "correct": {
+          "type": "string",
+          "enum": ["A", "B", "C", "D"]
+        },
+        "funFact": {
+          "type": "string",
+          "description": "Reward fact shown regardless of correct/incorrect answer"
+        }
+      }
+    }
+  }
+}
