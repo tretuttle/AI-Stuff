@@ -29,6 +29,7 @@ Then pick what you want:
 /plugin install persona@ai-stuff
 /plugin install omarchy-theme@ai-stuff
 /plugin install browser-capture@ai-stuff
+/plugin install project-recon@ai-stuff
 ```
 
 For Codex-only skills, use the package README in this repo instead of `/plugin install`.
@@ -113,6 +114,24 @@ cp -R ~/AI-Stuff/codex-session-export ~/.codex/skills/
 ```
 
 [View details &#8594;](./plugins/browser-capture/README.md)
+
+---
+
+### project-recon
+
+> Project reconnaissance and relationship mapping across a dual-SSD workstation. Scans a project directory, sweeps both SSDs for related projects, determines master/child/util relationships, and writes standardized `.project-identity.md` files.
+
+- One-command scan — `/recon` from any project directory
+- Orchestrator + parallel scout architecture — orchestrator stays local, scouts go to candidates
+- Dual-SSD awareness — searches Arch and Windows (read-only) partitions
+- Standardized identity files with fixed schema (role, locations, relationships)
+- No broadcast storms — one hop deep, early exit on existing identity files
+
+```
+/plugin install project-recon@ai-stuff
+```
+
+[View details &#8594;](./plugins/project-recon/README.md)
 
 ---
 
