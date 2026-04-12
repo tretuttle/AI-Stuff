@@ -109,8 +109,11 @@ Coupling rule for cross-references:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/render.py index-update \
-  --slug "{slug}" --cwd "{cwd}" --status "{current|orphaned|empty}" \
-  --sessions {N} --last "{YYYY-MM-DD}" --identity "{cwd}/.conversation-identity.md"
+  --slug="{slug}" --cwd="{cwd}" --status="{current|orphaned|empty}" \
+  --sessions={N} --last="{YYYY-MM-DD}" --identity="{cwd}/.conversation-identity.md"
+
+# Note: use `--flag=value` form (not `--flag value`). Slugs begin with `-` and
+# confuse argparse otherwise.
 ```
 
 Renderer sorts alphabetically by slug and preserves entries for slugs not touched this run.

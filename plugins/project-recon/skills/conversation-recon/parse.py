@@ -42,7 +42,7 @@ def resolve_cwd(records):
     return None
 
 
-def text_of(content):
+def text_of(content, include_tool_results=True):
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -52,7 +52,7 @@ def text_of(content):
                 continue
             if b.get("type") == "text":
                 parts.append(b.get("text", ""))
-            elif b.get("type") == "tool_result":
+            elif b.get("type") == "tool_result" and include_tool_results:
                 tc = b.get("content")
                 if isinstance(tc, str):
                     parts.append(tc)
@@ -62,22 +62,77 @@ def text_of(content):
     return ""
 
 
+def is_tool_result_only(content) -> bool:
+    """User messages that are ONLY tool results aren't real user input."""
+    if isinstance(content, str):
+        return False
+    if not isinstance(content, list):
+        return False
+    types = {b.get("type") for b in content if isinstance(b, dict)}
+    return bool(types) and types.issubset({"tool_result"})
+
+
+INJECTED_MARKERS = (
+    "<command-name>",
+    "<command-message>",
+    "<command-args>",
+    "<local-command-",
+    "<system-reminder>",
+    "Base directory for this skill:",
+)
+
+
+def _is_injected(txt: str) -> bool:
+    """Detect slash-command/skill injections that appear as user messages."""
+    head = txt[:500]
+    if any(m in head for m in INJECTED_MARKERS):
+        return True
+    first = txt.lstrip().split("\n", 1)[0].strip()
+    # Skill/command bodies commonly open with "## Context" or a heading
+    if first == "## Context":
+        return True
+    # Recon-style context block fingerprint
+    if "- Current directory:" in head and "- Directory contents:" in head:
+        return True
+    return False
+
+
+COMMAND_NAME_RE = re.compile(r"<command-name>([^<]+)</command-name>")
+
+
+def _extract_command_name(txt: str):
+    m = COMMAND_NAME_RE.search(txt)
+    return m.group(1).strip() if m else None
+
+
 def first_user_msg(session_records):
+    """Prefer real user text; fall back to slash-command name if the session
+    was started via a command injection and no organic text follows."""
+    fallback = None
     for r in session_records:
         if r.get("type") != "user":
             continue
         if r.get("isSidechain"):
             continue
         msg = r.get("message") or {}
-        txt = text_of(msg.get("content")).strip()
+        content = msg.get("content")
+        if is_tool_result_only(content):
+            continue
+        txt = text_of(content, include_tool_results=False).strip()
         if not txt:
             continue
         if txt.startswith("<") and txt.endswith(">"):
             continue
         if "tool_use_id" in txt[:80]:
             continue
+        if _is_injected(txt):
+            if fallback is None:
+                cmd = _extract_command_name(txt)
+                if cmd:
+                    fallback = f"/{cmd}"
+            continue
         return txt
-    return None
+    return fallback
 
 
 def slugify(s: str, maxlen=60) -> str:
