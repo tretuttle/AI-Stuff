@@ -6,12 +6,15 @@ Usage:
   render.py index-update --slug X --cwd Y --status Z --sessions N --last DATE --identity PATH
 """
 from __future__ import annotations
-import json, sys, argparse, pathlib
+import json, sys, argparse, pathlib, os
 from datetime import date as date_cls
 
-INDEX_PATH = pathlib.Path.home() / ".claude" / "conversation-index.md"
+CLAUDE_DIR = pathlib.Path.home() / ".claude"
+INDEX_PATH = CLAUDE_DIR / "conversation-index.md"
+STORE_DIR = CLAUDE_DIR / "conversations"
 INDEX_HEADER = "# Conversation Index"
 INDEX_SCHEMA = 1
+VALID_STATUSES = ("current", "homedir", "orphaned", "empty")
 
 
 def render_identity(data: dict) -> str:
@@ -21,12 +24,14 @@ def render_identity(data: dict) -> str:
     span = data.get("span") or {}
     span_str = f"{span.get('first','?')} → {span.get('last','?')}" if span else "—"
     today = date_cls.today().isoformat()
+    status = data.get("status", "current")
 
     out = []
     out.append("# Conversation Identity\n")
     out.append("**Schema:** 1")
     out.append(f"**Slug:** {slug}")
     out.append(f"**Cwd:** {cwd}")
+    out.append(f"**Status:** {status}")
     out.append(f"**Sessions:** {n}")
     out.append(f"**Span:** {span_str}")
     out.append(f"**Determined:** {today}")
@@ -122,14 +127,61 @@ def update_index(args):
     write_index(rows)
 
 
+def write_identity_all(data: dict, mirror: bool) -> dict:
+    """Write identity to central store. Mirror to cwd if project-like and mirror=True.
+    Return paths written + index entry details."""
+    slug = data["slug"]
+    cwd = data.get("cwd")
+    status = data.get("status", "current")
+    n = data.get("session_count", 0)
+    span = data.get("span") or {}
+    last = span.get("last", "")
+
+    body = render_identity(data)
+    STORE_DIR.mkdir(parents=True, exist_ok=True)
+    central = STORE_DIR / f"{slug}.md"
+    central.write_text(body)
+
+    mirrored = None
+    if mirror and status in ("current",) and cwd and os.path.isdir(cwd):
+        mirrored = pathlib.Path(cwd) / ".conversation-identity.md"
+        mirrored.write_text(body)
+
+    # Update index automatically
+    rows = {}
+    if INDEX_PATH.exists():
+        rows = parse_index(INDEX_PATH.read_text())
+    identity_link = f"[central]({central})"
+    if mirrored:
+        identity_link = f"[central]({central}) · [cwd]({mirrored})"
+    rows[slug] = {
+        "slug": slug,
+        "cwd": cwd or "—",
+        "status": status,
+        "sessions": str(n),
+        "last": last or "—",
+        "identity": identity_link,
+    }
+    write_index(rows)
+
+    return {
+        "central": str(central),
+        "mirrored": str(mirrored) if mirrored else None,
+        "status": status,
+        "sessions": n,
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("identity")
+    wr = sub.add_parser("write", help="Read parse JSON from stdin; write central + optional cwd mirror + index")
+    wr.add_argument("--no-mirror", action="store_true", help="Skip cwd mirror even for project-like dirs")
     iu = sub.add_parser("index-update")
     iu.add_argument("--slug", required=True)
     iu.add_argument("--cwd", required=True)
-    iu.add_argument("--status", required=True, choices=["current", "orphaned", "empty"])
+    iu.add_argument("--status", required=True, choices=list(VALID_STATUSES))
     iu.add_argument("--sessions", type=int, required=True)
     iu.add_argument("--last", default="")
     iu.add_argument("--identity", default="-")
@@ -138,6 +190,11 @@ def main():
     if args.cmd == "identity":
         data = json.load(sys.stdin)
         sys.stdout.write(render_identity(data))
+    elif args.cmd == "write":
+        data = json.load(sys.stdin)
+        result = write_identity_all(data, mirror=not args.no_mirror)
+        json.dump(result, sys.stdout, indent=2)
+        sys.stdout.write("\n")
     elif args.cmd == "index-update":
         update_index(args)
 

@@ -6,6 +6,37 @@ import json, sys, re, pathlib, collections, os
 NOISE_TYPES = {"queue-operation", "progress"}
 PATH_RE = re.compile(r"(?:/home/tt|/mnt/windows/Users/trent)(?:/[\w.\-]+)+")
 
+SYSTEM_ROOTS = {
+    "/", "/home", "/home/tt", "/tmp", "/root", "/etc", "/usr", "/var",
+    "/mnt", "/mnt/windows", "/mnt/windows/Users", "/mnt/windows/Users/trent",
+}
+GENERIC_HOME_SUBDIRS = {
+    "Downloads", "Documents", "Desktop", "Pictures", "Videos", "Music",
+    "Public", "Templates", "Games", "Work",
+}
+PROJECT_MARKERS = (
+    ".git", "package.json", "CLAUDE.md", "Cargo.toml", "pyproject.toml",
+    "go.mod", "pubspec.yaml", "Gemfile", "composer.json", ".claude-plugin",
+)
+
+
+def is_project_dir(cwd):
+    """True if cwd looks like a real project root (not home/system dir)."""
+    if not cwd:
+        return False
+    if cwd.rstrip("/") in SYSTEM_ROOTS:
+        return False
+    if not os.path.isdir(cwd):
+        return False
+    p = pathlib.Path(cwd)
+    for marker in PROJECT_MARKERS:
+        if (p / marker).exists():
+            return True
+    # Direct subdir of /home/tt that isn't a generic user dir → treat as project
+    if p.parent == pathlib.Path("/home/tt") and p.name not in GENERIC_HOME_SUBDIRS:
+        return True
+    return False
+
 
 def walk_slug(slug_dir: pathlib.Path):
     records = []
@@ -236,9 +267,22 @@ def summarize_slug(slug_dir: pathlib.Path):
     ]
 
     dates = [s["date"] for s in summaries if s["date"]]
+    project_like = is_project_dir(cwd)
+    cwd_exists = bool(cwd) and os.path.isdir(cwd)
+    if not cwd_exists:
+        status = "orphaned"
+    elif not summaries:
+        status = "empty"
+    elif not project_like:
+        status = "homedir"
+    else:
+        status = "current"
     return {
         "slug": slug_dir.name,
         "cwd": cwd,
+        "cwd_exists": cwd_exists,
+        "project_like": project_like,
+        "status": status,
         "session_count": len(summaries),
         "span": {"first": min(dates), "last": max(dates)} if dates else None,
         "sessions": summaries,

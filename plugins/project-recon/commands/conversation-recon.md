@@ -7,10 +7,24 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 
 - Current directory: !`pwd`
 - Mode arg: $ARGUMENTS
-- Existing identity: !`cat .conversation-identity.md 2>/dev/null | head -30 || echo "No conversation-identity file yet"`
 - Matching slug dir: !`bash -c 'slug=$(pwd | sed "s|/|-|g"); ls "/home/tt/.claude/projects/${slug}" 2>/dev/null | head -20 || echo "none"'`
 - Central index: !`head -20 ~/.claude/conversation-index.md 2>/dev/null || echo "No central index yet"`
-- Parser path: ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/parse.py
+- Parser: ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/parse.py
+- Renderer: ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/render.py
+
+## Write locations
+
+- **Central store (always):** `~/.claude/conversations/{slug}.md` — source of truth for every slug.
+- **Project mirror (when applicable):** `<cwd>/.conversation-identity.md` — only written for `current`-status slugs (real project dirs). Home-dir, system-dir, orphaned, and empty slugs are NOT mirrored.
+- **Central index:** `~/.claude/conversation-index.md` — always updated.
+
+## Status values
+
+Parser auto-computes status:
+- `current` — cwd exists AND looks like a project (has `.git`, `package.json`, `CLAUDE.md`, etc., or is a direct subdir of `/home/tt/` that isn't a generic user dir).
+- `homedir` — cwd exists but is a bare home or system dir (`/home/tt`, `/tmp`, `/`, etc.). Sessions are still tracked in central store but NOT mirrored to cwd.
+- `orphaned` — cwd no longer exists on disk.
+- `empty` — slug dir has no `*.jsonl` files.
 
 ## Mode Selection
 
@@ -18,143 +32,55 @@ Read $ARGUMENTS:
 - `sweep` → run across every slug in `~/.claude/projects/`
 - empty or `single` or a path → one project (current dir, or the path given)
 
-## Step 0: Check Existing Identity (single mode only)
-
-Read the existing identity above:
-- Contains `**Schema:** 1` AND `**Determined:**` date within 7 days → report contents, stop.
-- Exists but different schema or older → continue, will overwrite.
-- No identity → continue.
-
-## Step 1: Resolve Slug ↔ Cwd
+## Step 1: Resolve Slug
 
 **Single mode:**
-1. Resolve target cwd (argument path, else `pwd`). Canonicalize with `realpath`.
-2. Compute slug: replace every `/` with `-` (leading `-` included). Example `/home/tt/bleakBench` → `-home-tt-bleakBench`.
-3. Check `~/.claude/projects/{slug}/` exists.
-4. If dir missing → report "no session history for this project" and stop.
-5. If dir exists but no `*.jsonl` → report "empty slug dir", still record in central index, stop before writing identity.
+1. Target cwd = argument path (if given, resolved via `realpath`), else `pwd`.
+2. Compute slug: replace every `/` with `-`. `/home/tt/bleakBench` → `-home-tt-bleakBench`.
+3. If `~/.claude/projects/{slug}/` missing → report "no session history" and stop.
 
 **Sweep mode:**
-1. List all entries in `~/.claude/projects/`.
-2. For each slug, decode slug → cwd (replace leading `-` with `/`, replace remaining `-` with `/`).
-3. Check if cwd exists on disk. Classify: `current` (exists), `orphaned` (gone), `empty` (cwd exists but 0 jsonl).
+1. List every entry in `~/.claude/projects/`.
+2. For each slug, process in turn (fast — stdlib only).
 
-## Step 2: Parse
+## Step 2: Parse + Write
 
-Invoke the parser (stdlib only, no deps):
-
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/parse.py "/home/tt/.claude/projects/{slug}"
-```
-
-Parser emits JSON on stdout:
-```json
-{
-  "slug": "-home-tt-bleakBench",
-  "cwd": "/home/tt/bleakBench",
-  "session_count": 4,
-  "span": {"first": "YYYY-MM-DD", "last": "YYYY-MM-DD"},
-  "sessions": [
-    {
-      "id": "...", "file": "...jsonl", "date": "YYYY-MM-DD",
-      "title": "first-user-msg-slugified", "first_user_msg": "...",
-      "msg_count": 42, "tool_counts": {"Bash": 5, "Read": 8},
-      "resumed_from": null,
-      "path_mentions": [["/home/tt/ParkPal", 3]]
-    }
-  ],
-  "path_mentions": [{"path":"/home/tt/ParkPal","total_mentions":3,"sessions":2,"exists":true}]
-}
-```
-
-If `session_count == 0` → skip to central index update only.
-
-## Step 3: Render Identity
+For each target slug:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/parse.py "/home/tt/.claude/projects/{slug}" \
-  | python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/render.py identity > "{cwd}/.conversation-identity.md"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/parse.py \
+    "/home/tt/.claude/projects/{slug}" \
+  | python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/render.py write
 ```
 
-Expected shape:
-```markdown
-# Conversation Identity
+The `write` subcommand:
+1. Always writes `~/.claude/conversations/{slug}.md`
+2. For `current` status AND `cwd` exists: also writes `<cwd>/.conversation-identity.md`
+3. Updates `~/.claude/conversation-index.md`
+4. Emits JSON result: `{central, mirrored, status, sessions}`
 
-**Schema:** 1
-**Slug:** -home-tt-bleakBench
-**Cwd:** /home/tt/bleakBench
-**Sessions:** 4
-**Span:** 2026-03-30 → 2026-04-03
-**Determined:** YYYY-MM-DD
+Flag: `--no-mirror` disables the cwd mirror entirely (useful when running against a dir you don't want touched).
 
-## Sessions
+## Step 3: Report
 
-| Date | Title | File | Msgs | Tools | Resumed-from |
-|------|-------|------|-----:|------:|--------------|
-| 2026-03-31 | say-just-the-word-hello | d22ef050 | 2 | 0 | — |
+**Single mode:** print status, session count, span, and both file paths (central + mirrored).
 
-## Cross-references
-
-| Path | Sessions | Mentions | Coupling |
-|------|---------:|---------:|----------|
-| /home/tt/ParkPal | 2 | 3 | soft |
-```
-
-Coupling rule for cross-references:
-- `hard` — path equals this project's cwd (self-reference, skipped by parser)
-- `soft` — path appears in text, exists on disk
-- `intent` — path mentioned but not on disk
-
-## Step 4: Update Central Index
-
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/conversation-recon/render.py index-update \
-  --slug="{slug}" --cwd="{cwd}" --status="{current|orphaned|empty}" \
-  --sessions={N} --last="{YYYY-MM-DD}" --identity="{cwd}/.conversation-identity.md"
-
-# Note: use `--flag=value` form (not `--flag value`). Slugs begin with `-` and
-# confuse argparse otherwise.
-```
-
-Renderer sorts alphabetically by slug and preserves entries for slugs not touched this run.
-
-Index shape (`~/.claude/conversation-index.md`):
-```markdown
-# Conversation Index
-
-**Schema:** 1
-**Updated:** YYYY-MM-DD
-
-## Projects
-
-| Slug | Cwd | Status | Sessions | Last activity | Identity |
-|------|-----|--------|---------:|---------------|----------|
-| -home-tt-bleakBench | /home/tt/bleakBench | current | 4 | 2026-04-03 | [link](/home/tt/bleakBench/.conversation-identity.md) |
-| -home-tt-old-thing | /home/tt/old-thing | orphaned | 12 | 2026-01-15 | — |
-```
-
-## Step 5: Report
-
-Single mode: print session count, span, file paths written.
-
-Sweep mode: summary table — total slugs, current/orphaned/empty counts, total sessions, path to central index. Do NOT dump per-project details.
+**Sweep mode:** print summary table — total slugs by status (`current` / `homedir` / `orphaned` / `empty`), total sessions, path to central index. Do NOT dump per-project details.
 
 ---
 
 ## RULES
 
-**BANNED WORDS:** Never use: stale, cleanup, clean up, deprecated, obsolete, outdated, dead, unused, should be deleted, should be removed. Factual state only: `orphaned` (cwd gone), `empty` (no jsonl), `current` (active).
+**BANNED WORDS:** Never use: stale, cleanup, clean up, deprecated, obsolete, outdated, dead, unused, should be deleted, should be removed. Factual state only: `current` (active project), `homedir` (home or system dir), `orphaned` (cwd gone), `empty` (no jsonl).
 
 **NEVER recommend deletion.** Report. User decides.
 
-**NO LLM SUMMARIZATION YET.** Titles = first user message, that's it. Deep summaries are a future `conversation-scout` agent.
+**NO LLM SUMMARIZATION YET.** Titles = first user message (or slash-command name if the session started via one). Deep summaries are a future `conversation-scout` agent.
 
 **IDEMPOTENT.** Re-run = identical output. Sort sessions by date, mentions by count desc, index by slug asc.
 
-**ORPHAN HANDLING:** If cwd is gone, do NOT write an identity file. Record in central index only with `orphaned` status.
+**HOMEDIR PROTECTION:** Never write `.conversation-identity.md` into `/home/tt/`, `/`, `/tmp`, `/mnt/...`, or any path matching the system-root list in parser. These remain tracked in the central store only.
 
 **SIDECHAIN MSGS:** Excluded from titles, counted separately.
 
-**EMPTY SLUG DIRS:** Central index `empty`, no identity file.
-
-**CROSS-PROJECT LINKAGE:** Path mentions become `soft`/`intent` hints. `/project-recon:recon` may consult `.conversation-identity.md` for candidates (separate integration).
+**CROSS-PROJECT LINKAGE:** Path mentions become `soft`/`intent` hints. `/project-recon:recon` may consult central store + cwd identity files for candidates (separate integration).
