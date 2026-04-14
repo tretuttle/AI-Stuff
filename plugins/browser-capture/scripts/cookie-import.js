@@ -31,6 +31,7 @@ const BROWSER_REGISTRY = [
   { name: 'Edge',     dataDir: 'Microsoft Edge/',             keychainService: 'Microsoft Edge Safe Storage', aliases: ['edge'],                                           linuxDataDir: 'microsoft-edge/',             linuxApplication: 'microsoft-edge' },
   { name: 'Vivaldi',  dataDir: 'Vivaldi/',                    keychainService: 'Vivaldi Safe Storage',        aliases: ['vivaldi'],                                        linuxDataDir: 'vivaldi/',                    linuxApplication: 'vivaldi' },
   { name: 'Opera',    dataDir: 'com.operasoftware.Opera/',    keychainService: 'Opera Safe Storage',          aliases: ['opera'],                                          linuxDataDir: 'opera/',                      linuxApplication: 'opera' },
+  { name: 'Helium',   dataDir: 'net.imput.helium/',            keychainService: 'Chromium Safe Storage',       aliases: ['helium'],                                         linuxDataDir: 'net.imput.helium/',           linuxApplication: 'chromium' },
 ];
 
 // ─── Key Cache ──────────────────────────────────────────────────
