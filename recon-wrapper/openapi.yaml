@@ -1,0 +1,270 @@
+openapi: 3.1.0
+info:
+  title: recon-wrapper
+  version: 1.0.0
+  description: |
+    Frontend-agnostic HTTP/SSE API over project-recon metadata and
+    headless Claude Code execution. Runs on localhost. Bearer-token auth
+    (token at ~/.claude/recon/token).
+servers:
+  - url: http://127.0.0.1:7777
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Status:
+      type: string
+      enum: [current, homedir, orphaned, empty]
+    Coupling:
+      type: string
+      enum: [hard, soft, intent]
+
+    ProjectSummary:
+      type: object
+      required: [slug, status, sessions]
+      properties:
+        slug: { type: string }
+        cwd: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/Status" }
+        project_like: { type: boolean }
+        sessions: { type: integer }
+        last_activity: { type: string, nullable: true }
+        identity_paths:
+          type: object
+          additionalProperties: { type: string }
+
+    Relationship:
+      type: object
+      properties:
+        path: { type: string }
+        relationship: { type: string }
+        coupling: { $ref: "#/components/schemas/Coupling" }
+        notes: { type: string }
+
+    CrossRef:
+      type: object
+      properties:
+        path: { type: string }
+        sessions: { type: integer }
+        mentions: { type: integer }
+        coupling: { $ref: "#/components/schemas/Coupling" }
+
+    Session:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        date: { type: string, nullable: true }
+        title: { type: string }
+        first_user_msg: { type: string, nullable: true }
+        msg_count: { type: integer }
+        sidechain_msg_count: { type: integer }
+        tool_counts:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              count: { type: integer }
+        resumed_from: { type: string, nullable: true }
+
+    ContextFiles:
+      type: object
+      properties:
+        claude_md: { type: boolean }
+        agent_md: { type: boolean }
+        project_identity: { type: boolean }
+        conversation_identity: { type: boolean }
+        git: { type: boolean }
+        skills:
+          type: array
+          items: { type: string }
+        reference_md_count: { type: integer }
+
+    ProjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/ProjectSummary"
+        - type: object
+          properties:
+            relationships:
+              type: array
+              items: { $ref: "#/components/schemas/Relationship" }
+            cross_refs:
+              type: array
+              items: { $ref: "#/components/schemas/CrossRef" }
+            sessions_detail:
+              type: array
+              items: { $ref: "#/components/schemas/Session" }
+            context_files: { $ref: "#/components/schemas/ContextFiles" }
+
+    GraphNode:
+      type: object
+      properties:
+        slug: { type: string }
+        cwd: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/Status" }
+        sessions: { type: integer }
+
+    GraphEdge:
+      type: object
+      properties:
+        source: { type: string }
+        target: { type: string }
+        kind: { type: string, enum: [relationship, mention] }
+        coupling: { $ref: "#/components/schemas/Coupling" }
+        weight: { type: integer }
+
+    Graph:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/GraphNode" }
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/GraphEdge" }
+
+    ActionRequest:
+      type: object
+      required: [kind, cwd]
+      properties:
+        kind: { type: string, enum: [recon, conversation-recon, prompt] }
+        cwd: { type: string }
+        prompt: { type: string }
+        resume_session: { type: string }
+        output_format: { type: string, enum: [text, json, stream-json] }
+
+    ActionState:
+      type: object
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        cwd: { type: string }
+        status: { type: string, enum: [pending, running, completed, failed, canceled] }
+        started_at: { type: string }
+        ended_at: { type: string }
+        exit_code: { type: integer }
+        stdout_bytes: { type: integer }
+        stderr_bytes: { type: integer }
+        artifacts:
+          type: array
+          items: { type: string }
+
+security:
+  - BearerToken: []
+
+paths:
+  /health:
+    get:
+      summary: Liveness + Claude availability
+      security: []
+      responses:
+        '200': { description: ok }
+
+  /schema:
+    get:
+      summary: Report API + data schema versions
+      security: []
+      responses:
+        '200': { description: ok }
+
+  /projects:
+    get:
+      summary: List all tracked projects (from central index)
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/Status" }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ProjectSummary" }
+
+  /projects/{slug}:
+    get:
+      summary: Project detail (identity + sessions + context + relationships)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDetail" }
+        '404': { description: not found }
+
+  /projects/{slug}/context:
+    get:
+      summary: Well-known files present in this project's cwd
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ContextFiles" }
+
+  /graph:
+    get:
+      summary: Aggregated project graph (nodes + edges)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Graph" }
+
+  /actions:
+    post:
+      summary: Invoke a recon action via headless Claude Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ActionRequest" }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActionState" }
+
+  /actions/{id}:
+    get:
+      summary: Action state
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActionState" }
+    delete:
+      summary: Cancel action
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '204': { description: canceled }
+        '409': { description: not cancelable }
+
+  /actions/{id}/stream:
+    get:
+      summary: SSE stream of action stdout/stderr + lifecycle
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: text/event-stream
+
+  /events:
+    get:
+      summary: Global SSE firehose (jsonl file events, ingest completions)
+      responses:
+        '200':
+          description: text/event-stream

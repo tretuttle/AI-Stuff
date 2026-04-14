@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recon-wrapper"
+version = "0.1.0"
+description = "Frontend-agnostic HTTP/SSE wrapper over project-recon skills and Claude Code headless"
+authors = [{ name = "Trent" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+watch = ["watchdog>=3"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+recon-wrapper = "recon_wrapper.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
